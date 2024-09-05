@@ -13,7 +13,10 @@ func main() {
 	fontFace := fonts.LoadFont(fonts.ManaSpace)
 
 	// Create game instance and set font
-	g := game.NewGame(fontFace)
+	g, err := game.NewGame(fontFace)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Set up the window size and title
 	ebiten.SetWindowSize(game.ScreenWidth, game.ScreenHeight)

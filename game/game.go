@@ -1,65 +1,30 @@
 package game
 
 import (
+	"github.com/tejashwikalptaru/go-dino/game/background"
+	"github.com/tejashwikalptaru/go-dino/game/character"
+	"github.com/tejashwikalptaru/go-dino/game/enemy"
+	"github.com/tejashwikalptaru/go-dino/game/stage"
 	"golang.org/x/image/font"
 	"math/rand"
 	"time"
 )
 
 const (
-	ScreenWidth    = 800
-	ScreenHeight   = 400
-	GroundHeight   = 40
-	DinoHeight     = 60
-	DinoWidth      = 40
-	ObstacleWidth  = 20
-	ObstacleHeight = 40
-	CloudWidth     = 100
-	MinCloudY      = 5                // Minimum height for the clouds (from the top)
-	MaxCloudY      = ScreenHeight / 4 // Maximum height for the clouds (upper third of the screen)
-	MinCloudSpeed  = 0.5
-	MaxCloudSpeed  = 1.0
+	ScreenWidth  = 800
+	ScreenHeight = 400
 )
-
-var (
-	groundY = ScreenHeight - GroundHeight
-)
-
-// Cloud struct represents each moving cloud in the background
-type Cloud struct {
-	X     float64
-	Y     float64
-	Speed float64
-}
-
-// Obstacle struct represents each obstacle in the game
-type Obstacle struct {
-	X      float64
-	Speed  float64
-	Passed bool
-}
 
 // Game struct holds game state variables
 type Game struct {
-	DinoY           float64
-	VelocityY       float64
-	IsJumping       bool
-	Gravity         float64
-	Obstacles       []Obstacle // A list of obstacles
-	Clouds          []Cloud    // A list of moving clouds
-	ObstacleSpeed   float64
-	Score           int
-	Jumps           int // Count successful jumps over obstacles
-	Level           int // Current level
-	GameOver        bool
-	InLevelGreeting bool      // Whether we are in the level greeting stage
-	Countdown       int       // Countdown before the start of each level
-	CountdownAlpha  float64   // Alpha value for countdown animation (fade in/out)
-	CountdownStart  time.Time // When countdown started
-	FontFace        font.Face
-	RNG             *rand.Rand
-	BackgroundX     float64
-	BackgroundSpeed float64
+	FontFace font.Face
+	RNG      *rand.Rand
+	Scene    *background.Scene
+	Cloud    *background.Cloud
+	Obstacle *enemy.Obstacle
+	Player   *character.Player
+	Level    *stage.Level
+	GameOver bool
 }
 
 // Layout defines the screen dimensions
@@ -68,30 +33,48 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 // NewGame initializes a new game instance
-func NewGame(fontFace font.Face) *Game {
+func NewGame(fontFace font.Face) (*Game, error) {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-	initialObstacles := []Obstacle{{X: ScreenWidth, Speed: 5}}
+
+	// initialise background scene
+	scene, sceneErr := background.NewScene(ScreenWidth, ScreenHeight)
+	if sceneErr != nil {
+		return nil, sceneErr
+	}
+
+	// initialise cloud
+	cloud, cloudErr := background.NewCloud(ScreenWidth, ScreenHeight, 5, rng)
+	if cloudErr != nil {
+		return nil, cloudErr
+	}
+
+	// initialise character
+	player := character.NewPlayer(scene.GroundY())
+
+	// initialise obstacle
+	obstacle := enemy.NewObstacle(ScreenWidth, scene.GroundY(), player, rng)
 
 	game := &Game{
-		DinoY:           float64(groundY - DinoHeight),
-		VelocityY:       0,
-		IsJumping:       false,
-		Gravity:         0.6,
-		Obstacles:       initialObstacles,
-		ObstacleSpeed:   5,
-		Score:           0,
-		Jumps:           0,
-		Level:           1,
-		GameOver:        false,
-		InLevelGreeting: true, // Start with level greeting
-		Countdown:       3,    // Start countdown at 3
-		CountdownAlpha:  1.0,  // Start with fully visible countdown
-		CountdownStart:  time.Now(),
-		FontFace:        fontFace,
-		RNG:             rng,
-		BackgroundX:     0.0,
-		BackgroundSpeed: 1.0,
+		FontFace: fontFace,
+		RNG:      rng,
+		Scene:    scene,
+		Cloud:    cloud,
+		Obstacle: obstacle,
+		Player:   player,
+		GameOver: false,
 	}
-	game.InitializeClouds() // Initialize clouds at the start
-	return game
+
+	// initialise stage
+	level := stage.NewLevel(ScreenWidth, ScreenHeight, game.ResetGame, obstacle.IncreaseSpeed, obstacle.Reset, fontFace)
+	game.Level = level
+	return game, nil
+}
+
+// ResetGame resets the game state
+func (g *Game) ResetGame() {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	g.Player = character.NewPlayer(g.Scene.GroundY())
+	g.Obstacle = enemy.NewObstacle(ScreenWidth, g.Scene.GroundY(), g.Player, rng)
+	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.ResetGame, g.Obstacle.IncreaseSpeed, g.Obstacle.Reset, g.FontFace)
+	g.GameOver = false // Reset the game over state
 }
