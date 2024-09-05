@@ -20,7 +20,7 @@ func main() {
 
 	// Set up the window size and title
 	ebiten.SetWindowSize(game.ScreenWidth, game.ScreenHeight)
-	ebiten.SetWindowTitle("Dino Game in Go")
+	ebiten.SetWindowTitle("The Go Runner")
 
 	// Run the game loop
 	if err := ebiten.RunGame(g); err != nil {

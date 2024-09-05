@@ -49,7 +49,10 @@ func NewGame(fontFace font.Face) (*Game, error) {
 	}
 
 	// initialise character
-	player := character.NewPlayer(scene.GroundY())
+	player, playerErr := character.NewPlayer(scene.GroundY())
+	if playerErr != nil {
+		return nil, playerErr
+	}
 
 	// initialise obstacle
 	obstacle := enemy.NewObstacle(ScreenWidth, scene.GroundY(), player, rng)
@@ -73,7 +76,7 @@ func NewGame(fontFace font.Face) (*Game, error) {
 // ResetGame resets the game state
 func (g *Game) ResetGame() {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-	g.Player = character.NewPlayer(g.Scene.GroundY())
+	//g.Player = character.NewPlayer(g.Scene.GroundY())
 	g.Obstacle = enemy.NewObstacle(ScreenWidth, g.Scene.GroundY(), g.Player, rng)
 	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.ResetGame, g.Obstacle.IncreaseSpeed, g.Obstacle.Reset, g.FontFace)
 	g.GameOver = false // Reset the game over state

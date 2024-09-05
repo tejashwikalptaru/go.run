@@ -75,13 +75,13 @@ func (o *Obstacle) addObstacleWithGap() {
 
 // collisionDetected checks for a collision between the player and an obstacle
 func (o *Obstacle) collisionDetected(obs obstacleItem) bool {
-	playerRight := 40 + o.player.Width()
+	playerRight := 20 + o.player.Width()
 	playerBottom := o.player.Y() + o.player.Height()
 	obstacleRight := obs.X + o.obstacleWidth
 	obstacleTop := o.groundY - o.obstacleHeight
 
 	// Ensure this logic correctly calculates the collision boundaries
-	return playerRight > obs.X && 40 < obstacleRight && playerBottom > obstacleTop
+	return playerRight > obs.X && 50 < obstacleRight && playerBottom > obstacleTop
 }
 
 // TrackJumpsAndScore checks if the player has successfully jumped over an obstacle
