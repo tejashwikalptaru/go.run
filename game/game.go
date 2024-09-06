@@ -1,10 +1,11 @@
 package game
 
 import (
-	"github.com/tejashwikalptaru/go-dino/game/background"
-	"github.com/tejashwikalptaru/go-dino/game/character"
-	"github.com/tejashwikalptaru/go-dino/game/enemy"
-	"github.com/tejashwikalptaru/go-dino/game/stage"
+	"github.com/tejashwikalptaru/go.run/game/background"
+	"github.com/tejashwikalptaru/go.run/game/character"
+	"github.com/tejashwikalptaru/go.run/game/enemy"
+	"github.com/tejashwikalptaru/go.run/game/music"
+	"github.com/tejashwikalptaru/go.run/game/stage"
 	"golang.org/x/image/font"
 	"math/rand"
 	"time"
@@ -17,14 +18,15 @@ const (
 
 // Game struct holds game state variables
 type Game struct {
-	FontFace font.Face
-	RNG      *rand.Rand
-	Scene    *background.Scene
-	Cloud    *background.Cloud
-	Obstacle *enemy.Obstacle
-	Player   *character.Player
-	Level    *stage.Level
-	GameOver bool
+	FontFace     font.Face
+	RNG          *rand.Rand
+	Scene        *background.Scene
+	Cloud        *background.Cloud
+	Obstacle     *enemy.Obstacle
+	Player       *character.Player
+	Level        *stage.Level
+	GameOver     bool
+	MusicManager *music.Manager
 }
 
 // Layout defines the screen dimensions
@@ -35,6 +37,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 // NewGame initializes a new game instance
 func NewGame(fontFace font.Face) (*Game, error) {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	// initialise music manager
+	musicManager, musicErr := music.NewMusicManager()
+	if musicErr != nil {
+		return nil, musicErr
+	}
 
 	// initialise background scene
 	scene, sceneErr := background.NewScene(ScreenWidth, ScreenHeight)
@@ -49,35 +57,43 @@ func NewGame(fontFace font.Face) (*Game, error) {
 	}
 
 	// initialise character
-	player, playerErr := character.NewPlayer(scene.GroundY())
+	player, playerErr := character.NewPlayer(scene.GroundY(), musicManager)
 	if playerErr != nil {
 		return nil, playerErr
 	}
 
 	// initialise obstacle
-	obstacle := enemy.NewObstacle(ScreenWidth, scene.GroundY(), player, rng)
+	obstacle, obstacleErr := enemy.NewObstacle(ScreenWidth, scene.GroundY(), player, rng)
+	if obstacleErr != nil {
+		return nil, obstacleErr
+	}
 
 	game := &Game{
-		FontFace: fontFace,
-		RNG:      rng,
-		Scene:    scene,
-		Cloud:    cloud,
-		Obstacle: obstacle,
-		Player:   player,
-		GameOver: false,
+		FontFace:     fontFace,
+		RNG:          rng,
+		Scene:        scene,
+		Cloud:        cloud,
+		Obstacle:     obstacle,
+		Player:       player,
+		GameOver:     false,
+		MusicManager: musicManager,
 	}
 
 	// initialise stage
 	level := stage.NewLevel(ScreenWidth, ScreenHeight, game.ResetGame, obstacle.IncreaseSpeed, obstacle.Reset, fontFace)
 	game.Level = level
+
+	// Start playing the background music
+	game.MusicManager.PlayBackground()
+
 	return game, nil
 }
 
 // ResetGame resets the game state
 func (g *Game) ResetGame() {
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	//g.Player = character.NewPlayer(g.Scene.GroundY())
-	g.Obstacle = enemy.NewObstacle(ScreenWidth, g.Scene.GroundY(), g.Player, rng)
+	// g.Obstacle = enemy.NewObstacle(ScreenWidth, g.Scene.GroundY(), g.Player, rng)
 	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.ResetGame, g.Obstacle.IncreaseSpeed, g.Obstacle.Reset, g.FontFace)
 	g.GameOver = false // Reset the game over state
 }

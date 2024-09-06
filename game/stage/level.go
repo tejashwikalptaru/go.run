@@ -12,6 +12,7 @@ import (
 type Level struct {
 	gameOver           bool
 	inLevelGreeting    bool
+	isFirstLevel       bool
 	countdownStart     time.Time
 	gameResetFunc      func()
 	increaseSpeedFunc  func()
@@ -34,6 +35,7 @@ func NewLevel(screenWidth, screenHeight float64, gameReset, increaseSpeed, obsta
 		increaseSpeedFunc:  increaseSpeed,
 		obstacleResetFunc:  obstacleReset,
 		inLevelGreeting:    true,
+		isFirstLevel:       true,
 		countdownStart:     time.Now(),
 		countdown:          3,
 		countdownAlpha:     1.0,
@@ -67,6 +69,7 @@ func (l *Level) IncreaseScore() {
 func (l *Level) HandleLevelProgression() {
 	if l.jumps >= l.levelJumpThreshold {
 		// Move to the next stage
+		l.isFirstLevel = false
 		l.level++
 		l.jumps = 0 // Reset the jump counter for the next stage
 		l.inLevelGreeting = true

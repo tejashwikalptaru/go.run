@@ -3,7 +3,8 @@ package background
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/tejashwikalptaru/go-dino/resources/images"
+	"github.com/tejashwikalptaru/go.run/resources"
+	"github.com/tejashwikalptaru/go.run/resources/images"
 	"image/color"
 )
 
@@ -20,7 +21,7 @@ type Scene struct {
 }
 
 func NewScene(screenWidth, screenHeight int) (*Scene, error) {
-	image, imageErr := GetImage(images.BackgroundOne)
+	image, imageErr := resources.GetImage(images.BackgroundOne)
 	if imageErr != nil {
 		return nil, imageErr
 	}

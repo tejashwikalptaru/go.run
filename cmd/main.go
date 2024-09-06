@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/tejashwikalptaru/go-dino/resources/fonts"
+	"github.com/tejashwikalptaru/go.run/resources/fonts"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/tejashwikalptaru/go-dino/game"
+	"github.com/tejashwikalptaru/go.run/game"
 )
 
 func main() {

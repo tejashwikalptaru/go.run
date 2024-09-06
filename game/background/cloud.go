@@ -2,7 +2,8 @@ package background
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/tejashwikalptaru/go-dino/resources/images"
+	"github.com/tejashwikalptaru/go.run/resources"
+	"github.com/tejashwikalptaru/go.run/resources/images"
 	"math/rand"
 )
 
@@ -26,7 +27,7 @@ type Cloud struct {
 }
 
 func NewCloud(screenWidth, screenHeight, numClouds int, rng *rand.Rand) (*Cloud, error) {
-	image, imageErr := GetImage(images.Cloud)
+	image, imageErr := resources.GetImage(images.Cloud)
 	if imageErr != nil {
 		return nil, imageErr
 	}
@@ -51,7 +52,7 @@ func NewCloud(screenWidth, screenHeight, numClouds int, rng *rand.Rand) (*Cloud,
 func (c *Cloud) addCloud() {
 	c.clouds = append(c.clouds, cloudItem{
 		X:     c.screenWidth,                                                       // Start the cloud on the right side of the screen
-		Y:     c.minCloudY + c.rng.Float64()*(c.maxCloudY-c.minCloudY),             // Restrict cloud Y position to upper part of screen
+		Y:     c.minCloudY + c.rng.Float64()*(c.maxCloudY-c.minCloudY),             // Restrict cloud YPosition position to upper part of screen
 		Speed: c.minCloudSpeed + c.rng.Float64()*(c.maxCloudSpeed-c.minCloudSpeed), // Random speed in the range
 	})
 }
