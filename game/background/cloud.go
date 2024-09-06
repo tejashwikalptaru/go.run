@@ -1,10 +1,11 @@
 package background
 
 import (
+	"math/rand"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/resources"
 	"github.com/tejashwikalptaru/go.run/resources/images"
-	"math/rand"
 )
 
 type cloudItem struct {
@@ -14,6 +15,9 @@ type cloudItem struct {
 }
 
 type Cloud struct {
+	rng           *rand.Rand
+	cloudImage    *ebiten.Image
+	clouds        []cloudItem
 	cloudWidth    float64
 	minCloudY     float64
 	maxCloudY     float64
@@ -21,9 +25,6 @@ type Cloud struct {
 	maxCloudSpeed float64
 	screenWidth   float64
 	screenHeight  float64
-	rng           *rand.Rand
-	cloudImage    *ebiten.Image
-	clouds        []cloudItem
 }
 
 func NewCloud(screenWidth, screenHeight, numClouds int, rng *rand.Rand) (*Cloud, error) {

@@ -1,15 +1,16 @@
 package enemy
 
 import (
+	"image"
+	"image/color"
+	"math/rand"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/character"
 	"github.com/tejashwikalptaru/go.run/game/stage"
 	"github.com/tejashwikalptaru/go.run/resources"
 	"github.com/tejashwikalptaru/go.run/resources/sprites"
-	"image"
-	"image/color"
-	"math/rand"
 )
 
 type obstacleType string
@@ -23,6 +24,8 @@ const (
 	obstacleTypeDeceased obstacleType = "deceased"
 )
 
+const obstacleSpriteSize = 48
+
 type obstacleSpriteInfo struct {
 	frames          []*ebiten.Image
 	width           float64
@@ -34,27 +37,27 @@ type obstacleSpriteInfo struct {
 }
 
 type obstacleItem struct {
+	obstacleType obstacleType
 	xPosition    float64
 	speed        float64
-	passed       bool
-	obstacleType obstacleType
 	frameIndex   int
 	frameCount   int
 	height       float64
 	width        float64
 	yPosition    float64
+	passed       bool
 }
 
 type Obstacle struct {
+	rng            *rand.Rand
+	player         *character.Player
+	obstacleImages map[obstacleType]obstacleSpriteInfo
+	obstacles      []obstacleItem
 	groundY        float64
 	minObstacleGap float64
 	maxObstacleGap float64
 	screenWidth    float64
 	obstacleSpeed  float64
-	rng            *rand.Rand
-	player         *character.Player
-	obstacles      []obstacleItem
-	obstacleImages map[obstacleType]obstacleSpriteInfo
 	frameDelay     int
 	scaleFactor    float64
 }
@@ -119,8 +122,8 @@ func (o *Obstacle) loadObstacleSprites() error {
 	o.obstacleImages = map[obstacleType]obstacleSpriteInfo{
 		obstacleTypeDeceased: {
 			frames:          o.loadFrames(ebiten.NewImageFromImage(deceased), 48, 48, 6),
-			width:           48,
-			height:          48,
+			width:           obstacleSpriteSize,
+			height:          obstacleSpriteSize,
 			collisionTop:    12,
 			collisionLeft:   40,
 			collisionWidth:  25,
@@ -128,8 +131,8 @@ func (o *Obstacle) loadObstacleSprites() error {
 		},
 		obstacleTypeHyena: {
 			frames:          o.loadFrames(ebiten.NewImageFromImage(hyena), 48, 48, 6),
-			width:           48,
-			height:          48,
+			width:           obstacleSpriteSize,
+			height:          obstacleSpriteSize,
 			collisionTop:    30,
 			collisionLeft:   0,
 			collisionWidth:  55,
@@ -137,8 +140,8 @@ func (o *Obstacle) loadObstacleSprites() error {
 		},
 		obstacleTypeMummy: {
 			frames:          o.loadFrames(ebiten.NewImageFromImage(mummy), 48, 48, 6),
-			width:           48,
-			height:          48,
+			width:           obstacleSpriteSize,
+			height:          obstacleSpriteSize,
 			collisionTop:    12,
 			collisionLeft:   35,
 			collisionWidth:  30,
@@ -146,8 +149,8 @@ func (o *Obstacle) loadObstacleSprites() error {
 		},
 		obstacleTypeScorpio: {
 			frames:          o.loadFrames(ebiten.NewImageFromImage(scorpio), 48, 48, 4),
-			width:           48,
-			height:          48,
+			width:           obstacleSpriteSize,
+			height:          obstacleSpriteSize,
 			collisionTop:    35,
 			collisionLeft:   20,
 			collisionWidth:  55,
@@ -155,8 +158,8 @@ func (o *Obstacle) loadObstacleSprites() error {
 		},
 		obstacleTypeSnake: {
 			frames:          o.loadFrames(ebiten.NewImageFromImage(snake), 48, 48, 4),
-			width:           48,
-			height:          48,
+			width:           obstacleSpriteSize,
+			height:          obstacleSpriteSize,
 			collisionTop:    45,
 			collisionLeft:   20,
 			collisionWidth:  55,
@@ -164,8 +167,8 @@ func (o *Obstacle) loadObstacleSprites() error {
 		},
 		obstacleTypeVulture: {
 			frames:          o.loadFrames(ebiten.NewImageFromImage(vulture), 48, 48, 4),
-			width:           48,
-			height:          48,
+			width:           obstacleSpriteSize,
+			height:          obstacleSpriteSize,
 			collisionTop:    26,
 			collisionLeft:   10,
 			collisionWidth:  70,
@@ -176,16 +179,15 @@ func (o *Obstacle) loadObstacleSprites() error {
 }
 
 func (o *Obstacle) randomObstacleType(rng *rand.Rand) obstacleType {
-	//types := []obstacleType{
-	//	obstacleTypeSnake,
-	//	obstacleTypeHyena,
-	//	obstacleTypeScorpio,
-	//	obstacleTypeVulture,
-	//	obstacleTypeMummy,
-	//	obstacleTypeDeceased,
-	//}
-	//return types[rng.Intn(len(types))]
-	return obstacleTypeHyena
+	types := []obstacleType{
+		obstacleTypeSnake,
+		obstacleTypeHyena,
+		obstacleTypeScorpio,
+		obstacleTypeVulture,
+		obstacleTypeMummy,
+		obstacleTypeDeceased,
+	}
+	return types[rng.Intn(len(types))]
 }
 
 // IncreaseSpeed increases the speed of the obstacles as the player progresses to new levels
@@ -210,7 +212,7 @@ func (o *Obstacle) addObstacleWithGap() {
 	lastObstacle := o.obstacles[len(o.obstacles)-1]
 
 	// Create a new obstacle with a random type and random gap
-	gap := o.rng.Float64()*(400-250) + 250
+	gap := o.rng.Float64()*(o.maxObstacleGap-o.minObstacleGap) + o.minObstacleGap
 	obstacleType := o.randomObstacleType(o.rng)
 
 	// Get the dimensions from the obstacleImages map
@@ -240,7 +242,7 @@ func (o *Obstacle) addObstacleWithGap() {
 }
 
 // collisionDetected checks for a collision between the player and an obstacle
-func (o *Obstacle) collisionDetected(obs obstacleItem) bool {
+func (o *Obstacle) collisionDetected(obs *obstacleItem) bool {
 	// Player's collision boundaries
 	playerLeft := 40 + o.player.CollisionLeft()
 	playerRight := playerLeft + (o.player.CollisionWidth())
@@ -357,7 +359,7 @@ func (o *Obstacle) Update() bool {
 
 	// Check for collisions with each obstacle
 	for _, obs := range o.obstacles {
-		if o.collisionDetected(obs) {
+		if o.collisionDetected(&obs) {
 			return true // Trigger game over if a collision is detected
 		}
 	}

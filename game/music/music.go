@@ -3,6 +3,7 @@ package music
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/tejashwikalptaru/go.run/resources/music"

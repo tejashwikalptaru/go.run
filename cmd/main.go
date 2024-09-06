@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/tejashwikalptaru/go.run/resources/fonts"
 	"log"
+
+	"github.com/tejashwikalptaru/go.run/resources/fonts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game"

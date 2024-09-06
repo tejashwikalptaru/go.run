@@ -2,36 +2,36 @@ package character
 
 import (
 	"bytes"
+	"image"
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resources/sprites"
-	"image"
-	"image/color"
 )
 
 type Player struct {
-	height          float64
-	width           float64
-	yPosition       float64
+	sprite          *ebiten.Image
+	musicManager    *music.Manager
+	collisionWidth  float64
+	collisionHeight float64
 	velocityY       float64
 	gravity         float64
-	isJumping       bool
 	groundY         float64
+	scaleFactor     float64
+	collisionTop    float64
+	collisionLeft   float64
+	width           float64
+	yPosition       float64
 	frameOY         int
 	frameWidth      int
 	frameHeight     int
 	frameIndex      int
 	frameDelay      int
 	frameCount      int
-	sprite          *ebiten.Image
-	scaleFactor     float64
-	collisionTop    float64
-	collisionLeft   float64
-	collisionWidth  float64
-	collisionHeight float64
-
-	musicManager *music.Manager
+	height          float64
+	isJumping       bool
 }
 
 func NewPlayer(groundY float64, musicManager *music.Manager) (*Player, error) {

@@ -1,23 +1,22 @@
 package background
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/resources"
 	"github.com/tejashwikalptaru/go.run/resources/images"
-	"image/color"
 )
 
 type Scene struct {
+	backGroundImage *ebiten.Image
 	groundHeight    float64
 	groundY         float64
 	backgroundX     float64
 	backgroundSpeed float64
-
-	screenWidth  float64
-	screenHeight float64
-
-	backGroundImage *ebiten.Image
+	screenWidth     float64
+	screenHeight    float64
 }
 
 func NewScene(screenWidth, screenHeight int) (*Scene, error) {
@@ -54,7 +53,7 @@ func (s *Scene) Update() {
 
 func (s *Scene) Draw(screen *ebiten.Image) {
 	// Get the original dimensions of the background image
-	backGroundWidth, backGroundHeight := s.backGroundImage.Size()
+	backGroundWidth, backGroundHeight := s.backGroundImage.Bounds().Dx(), s.backGroundImage.Bounds().Dy()
 
 	// Calculate scaling factors to resize the image to match the window size
 	scaleX := s.screenWidth / float64(backGroundWidth)

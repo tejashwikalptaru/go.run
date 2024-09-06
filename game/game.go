@@ -1,14 +1,15 @@
 package game
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/tejashwikalptaru/go.run/game/background"
 	"github.com/tejashwikalptaru/go.run/game/character"
 	"github.com/tejashwikalptaru/go.run/game/enemy"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/game/stage"
 	"golang.org/x/image/font"
-	"math/rand"
-	"time"
 )
 
 const (
@@ -18,19 +19,19 @@ const (
 
 // Game struct holds game state variables
 type Game struct {
-	FontFace     font.Face
 	RNG          *rand.Rand
 	Scene        *background.Scene
 	Cloud        *background.Cloud
 	Obstacle     *enemy.Obstacle
 	Player       *character.Player
 	Level        *stage.Level
-	GameOver     bool
 	MusicManager *music.Manager
+	FontFace     font.Face
+	GameOver     bool
 }
 
 // Layout defines the screen dimensions
-func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 	return ScreenWidth, ScreenHeight
 }
 
@@ -92,7 +93,7 @@ func NewGame(fontFace font.Face) (*Game, error) {
 // ResetGame resets the game state
 func (g *Game) ResetGame() {
 	// rng := rand.New(rand.NewSource(time.Now().UnixNano()))
-	//g.Player = character.NewPlayer(g.Scene.GroundY())
+	// g.Player = character.NewPlayer(g.Scene.GroundY())
 	// g.Obstacle = enemy.NewObstacle(ScreenWidth, g.Scene.GroundY(), g.Player, rng)
 	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.ResetGame, g.Obstacle.IncreaseSpeed, g.Obstacle.Reset, g.FontFace)
 	g.GameOver = false // Reset the game over state

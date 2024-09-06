@@ -2,9 +2,10 @@ package fonts
 
 import (
 	_ "embed"
+	"log"
+
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
-	"log"
 )
 
 var (

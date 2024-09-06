@@ -2,30 +2,31 @@ package stage
 
 import (
 	"fmt"
+	"image/color"
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
-	"image/color"
-	"time"
 )
 
 type Level struct {
-	gameOver           bool
-	inLevelGreeting    bool
-	isFirstLevel       bool
 	countdownStart     time.Time
-	gameResetFunc      func()
+	fontFace           font.Face
 	increaseSpeedFunc  func()
 	obstacleResetFunc  func()
-	countdown          int
+	gameResetFunc      func()
 	countdownAlpha     float64
+	countdown          int
 	levelJumpThreshold int
 	level              int
 	jumps              int
 	score              int
-	fontFace           font.Face
 	screenWidth        float64
 	screenHeight       float64
+	isFirstLevel       bool
+	gameOver           bool
+	inLevelGreeting    bool
 }
 
 func NewLevel(screenWidth, screenHeight float64, gameReset, increaseSpeed, obstacleReset func(), fontFace font.Face) *Level {
