@@ -56,16 +56,11 @@ func (l *Level) Score() int {
 	return l.score
 }
 
-func (l *Level) IncreaseJump() {
-	l.jumps++
-}
-
-func (l *Level) IncreaseScore() {
-	l.score += 10
-}
-
 // HandleLevelProgression checks if the player should stage up based on the number of jumps
 func (l *Level) HandleLevelProgression() {
+	l.jumps++
+	l.score += 10
+
 	if l.jumps >= l.levelJumpThreshold {
 		// Move to the next stage
 		l.isFirstLevel = false
@@ -75,7 +70,6 @@ func (l *Level) HandleLevelProgression() {
 		l.countdown = 3 // Start countdown for new stage
 		l.countdownAlpha = 1.0
 		l.countdownStart = time.Now()
-
 		l.increaseSpeedFunc()
 	}
 }

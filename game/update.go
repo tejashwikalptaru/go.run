@@ -30,14 +30,15 @@ func (g *Game) Update() error {
 	g.Level.Update()
 	g.Player.Update()
 
-	// Check if there is a collision, triggering game over
-	g.GameOver = g.Obstacle.Update()
-	if g.GameOver {
+	// Check if there is a collision or the obstacle is cleared
+	collision, obstacleCleared := g.Obstacle.Update()
+	if collision {
+		g.GameOver = true
 		g.MusicManager.PlayCollisionSound()
 	}
 
 	// Track jumps and score, and check for level progression
-	if g.Obstacle.TrackJumpsAndScore(g.Level) {
+	if obstacleCleared {
 		g.Level.HandleLevelProgression()
 	}
 

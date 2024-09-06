@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/character"
-	"github.com/tejashwikalptaru/go.run/game/stage"
 	"github.com/tejashwikalptaru/go.run/resources"
 	"github.com/tejashwikalptaru/go.run/resources/sprites"
 )
@@ -284,16 +283,12 @@ func (o *Obstacle) collisionDetected(obs *obstacleItem) bool {
 	return xOverlap && yOverlap
 }
 
-// TrackJumpsAndScore checks if the player has successfully jumped over an obstacle
-func (o *Obstacle) TrackJumpsAndScore(level *stage.Level) bool {
+// cleared returns true when an obstacle was completely passed by player
+func (o *Obstacle) cleared() bool {
 	for i := range o.obstacles {
 		// Check if the obstacle has completely passed the player (xPosition + width is less than player's X)
 		if o.obstacles[i].xPosition+o.obstacles[i].width < 40 && !o.obstacles[i].passed {
 			o.obstacles[i].passed = true // Mark the obstacle as passed
-			level.IncreaseJump()         // Increment jump count
-			level.IncreaseScore()        // Increment the score by 10
-
-			// Check for level progression
 			return true
 		}
 	}
@@ -334,7 +329,7 @@ func (o *Obstacle) Reset() {
 }
 
 // Update handles the movement of obstacles and checks for collisions
-func (o *Obstacle) Update() bool {
+func (o *Obstacle) Update() (collision bool, cleared bool) {
 	for i := range o.obstacles {
 		o.obstacles[i].xPosition -= o.obstacles[i].speed // Move the obstacle to the left
 
@@ -358,10 +353,11 @@ func (o *Obstacle) Update() bool {
 	// Check for collisions with each obstacle
 	for _, obs := range o.obstacles {
 		if o.collisionDetected(&obs) {
-			return true // Trigger game over if a collision is detected
+			// Trigger game over if a collision is detected
+			return true, false
 		}
 	}
-	return false
+	return false, o.cleared()
 }
 
 // Draw renders the obstacles on the screen
