@@ -118,7 +118,7 @@ func (p *Player) Update() {
 	p.frameCount++
 	if p.frameCount >= p.frameDelay {
 		p.frameIndex++
-		p.frameCount = 0       // Reset frame count after updating the frame
+		p.frameCount = 0       // ResetToFirst frame count after updating the frame
 		if p.frameIndex >= 8 { // Assuming 8 frames in the sprite sheet
 			p.frameIndex = 0
 		}

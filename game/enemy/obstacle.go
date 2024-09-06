@@ -75,8 +75,7 @@ func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *ra
 	if obstacleImagesErr != nil {
 		return nil, obstacleImagesErr
 	}
-	// Start the first obstacle farther away to avoid instant collision
-	obstacle.obstacles = []obstacleItem{}
+	obstacle.ResetToFirst()
 	return obstacle, nil
 }
 
@@ -295,8 +294,8 @@ func (o *Obstacle) cleared() bool {
 	return false
 }
 
-// Reset clears the current obstacles and resets the obstacle list
-func (o *Obstacle) Reset() {
+// ResetToFirst clears the current obstacles and resets the obstacle list
+func (o *Obstacle) ResetToFirst() {
 	// Choose a random obstacle type for the first obstacle
 	obstacleType := o.randomObstacleType(o.rng)
 

@@ -81,7 +81,7 @@ func NewGame(fontFace font.Face) (*Game, error) {
 	}
 
 	// initialise stage
-	level := stage.NewLevel(ScreenWidth, ScreenHeight, obstacle.IncreaseSpeed, obstacle.Reset, fontFace)
+	level := stage.NewLevel(ScreenWidth, ScreenHeight, fontFace)
 	game.Level = level
 
 	// Start playing the background music
@@ -92,8 +92,8 @@ func NewGame(fontFace font.Face) (*Game, error) {
 
 // ResetGame resets the game state
 func (g *Game) ResetGame() error {
-	g.Obstacle.Reset()
-	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.Obstacle.IncreaseSpeed, g.Obstacle.Reset, g.FontFace)
+	g.Obstacle.ResetToFirst()
+	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.FontFace)
 	g.GameOver = false
 	return nil
 }

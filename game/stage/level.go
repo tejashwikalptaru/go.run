@@ -13,8 +13,6 @@ import (
 type Level struct {
 	countdownStart     time.Time
 	fontFace           font.Face
-	increaseSpeedFunc  func()
-	obstacleResetFunc  func()
 	countdownAlpha     float64
 	countdown          int
 	levelJumpThreshold int
@@ -28,11 +26,9 @@ type Level struct {
 	inLevelGreeting    bool
 }
 
-func NewLevel(screenWidth, screenHeight float64, increaseSpeed, obstacleReset func(), fontFace font.Face) *Level {
+func NewLevel(screenWidth, screenHeight float64, fontFace font.Face) *Level {
 	return &Level{
 		gameOver:           false,
-		increaseSpeedFunc:  increaseSpeed,
-		obstacleResetFunc:  obstacleReset,
 		inLevelGreeting:    true,
 		isFirstLevel:       true,
 		countdownStart:     time.Now(),
@@ -57,7 +53,7 @@ func (l *Level) Score() int {
 }
 
 // HandleLevelProgression checks if the player should stage up based on the number of jumps
-func (l *Level) HandleLevelProgression() {
+func (l *Level) HandleLevelProgression() bool {
 	l.jumps++
 	l.score += 10
 
@@ -65,13 +61,14 @@ func (l *Level) HandleLevelProgression() {
 		// Move to the next stage
 		l.isFirstLevel = false
 		l.level++
-		l.jumps = 0 // Reset the jump counter for the next stage
+		l.jumps = 0 // ResetToFirst the jump counter for the next stage
 		l.inLevelGreeting = true
 		l.countdown = 3 // Start countdown for new stage
 		l.countdownAlpha = 1.0
 		l.countdownStart = time.Now()
-		l.increaseSpeedFunc()
+		return true // promoted to next level
 	}
+	return false
 }
 
 // handleCountdown manages the countdown before each stage
@@ -87,7 +84,6 @@ func (l *Level) handleCountdown() {
 
 	if l.countdown < 0 {
 		l.inLevelGreeting = false
-		l.obstacleResetFunc()
 	}
 }
 

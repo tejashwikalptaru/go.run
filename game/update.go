@@ -7,7 +7,7 @@ func (g *Game) Update() error {
 	// If the game is over, wait for the player to press space to restart
 	if g.GameOver {
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			// Reset the game state when space is pressed
+			// ResetToFirst the game state when space is pressed
 			if resetErr := g.ResetGame(); resetErr != nil {
 				return resetErr
 			}
@@ -39,7 +39,11 @@ func (g *Game) Update() error {
 
 	// Track jumps and score, and check for level progression
 	if obstacleCleared {
-		g.Level.HandleLevelProgression()
+		if g.Level.HandleLevelProgression() {
+			// level up
+			g.Obstacle.ResetToFirst()  // reset obstacles for next level
+			g.Obstacle.IncreaseSpeed() // increase obstacle speed
+		}
 	}
 
 	return nil

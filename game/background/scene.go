@@ -45,7 +45,7 @@ func (s *Scene) Update() {
 	// Scroll the background to the left
 	s.backgroundX -= s.backgroundSpeed
 
-	// Reset the background position for a seamless loop
+	// ResetToFirst the background position for a seamless loop
 	if s.backgroundX <= -s.screenWidth {
 		s.backgroundX = 0
 	}
