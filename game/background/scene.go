@@ -20,7 +20,7 @@ type Scene struct {
 }
 
 func NewScene(screenWidth, screenHeight int) (*Scene, error) {
-	image, imageErr := resources.GetImage(images.BackgroundOne)
+	image, imageErr := resources.GetImage(images.BackgroundFour)
 	if imageErr != nil {
 		return nil, imageErr
 	}

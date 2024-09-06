@@ -15,7 +15,6 @@ type Level struct {
 	fontFace           font.Face
 	increaseSpeedFunc  func()
 	obstacleResetFunc  func()
-	gameResetFunc      func()
 	countdownAlpha     float64
 	countdown          int
 	levelJumpThreshold int
@@ -29,10 +28,9 @@ type Level struct {
 	inLevelGreeting    bool
 }
 
-func NewLevel(screenWidth, screenHeight float64, gameReset, increaseSpeed, obstacleReset func(), fontFace font.Face) *Level {
+func NewLevel(screenWidth, screenHeight float64, increaseSpeed, obstacleReset func(), fontFace font.Face) *Level {
 	return &Level{
 		gameOver:           false,
-		gameResetFunc:      gameReset,
 		increaseSpeedFunc:  increaseSpeed,
 		obstacleResetFunc:  obstacleReset,
 		inLevelGreeting:    true,
@@ -103,14 +101,6 @@ func (l *Level) Update() {
 	// If we're in the stage greeting phase, manage the countdown
 	if l.inLevelGreeting {
 		l.handleCountdown()
-		return
-	}
-
-	if l.gameOver {
-		// Restart game on space bar press
-		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			l.gameResetFunc()
-		}
 		return
 	}
 }

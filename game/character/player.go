@@ -2,13 +2,10 @@ package character
 
 import (
 	"bytes"
-	"image"
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resources/sprites"
+	"image"
 )
 
 type Player struct {
@@ -144,34 +141,34 @@ func (p *Player) Draw(screen *ebiten.Image) {
 	screen.DrawImage(subImage, op)
 
 	// Visualise the collision box for debugging
-	collisionTop := p.collisionTop
-	if collisionTop == 0 {
-		collisionTop = 0
-	}
-
-	collisionLeft := p.collisionLeft
-	if collisionLeft == 0 {
-		collisionLeft = 0
-	}
-
-	collisionWidth := p.collisionWidth
-	if collisionWidth == 0 {
-		collisionWidth = p.width
-	}
-
-	collisionHeight := p.collisionHeight
-	if collisionHeight == 0 {
-		collisionHeight = p.height
-	}
-
-	// Draw the player's collision rectangle
-	vector.DrawFilledRect(
-		screen,
-		float32(40+collisionLeft),         // X position with collision offset
-		float32(p.yPosition+collisionTop), // Y position with collision offset
-		float32(collisionWidth),           // Scaled collision width
-		float32(collisionHeight),          // Scaled collision height
-		color.RGBA{R: 255, A: 128},        // Color of the rectangle (Red with 50% transparency)
-		false,
-	)
+	//collisionTop := p.collisionTop
+	//if collisionTop == 0 {
+	//	collisionTop = 0
+	//}
+	//
+	//collisionLeft := p.collisionLeft
+	//if collisionLeft == 0 {
+	//	collisionLeft = 0
+	//}
+	//
+	//collisionWidth := p.collisionWidth
+	//if collisionWidth == 0 {
+	//	collisionWidth = p.width
+	//}
+	//
+	//collisionHeight := p.collisionHeight
+	//if collisionHeight == 0 {
+	//	collisionHeight = p.height
+	//}
+	//
+	//// Draw the player's collision rectangle
+	//vector.DrawFilledRect(
+	//	screen,
+	//	float32(40+collisionLeft),         // X position with collision offset
+	//	float32(p.yPosition+collisionTop), // Y position with collision offset
+	//	float32(collisionWidth),           // Scaled collision width
+	//	float32(collisionHeight),          // Scaled collision height
+	//	color.RGBA{R: 255, A: 128},        // Color of the rectangle (Red with 50% transparency)
+	//	false,
+	//)
 }

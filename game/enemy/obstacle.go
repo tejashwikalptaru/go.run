@@ -2,11 +2,9 @@ package enemy
 
 import (
 	"image"
-	"image/color"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/character"
 	"github.com/tejashwikalptaru/go.run/game/stage"
 	"github.com/tejashwikalptaru/go.run/resources"
@@ -153,7 +151,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			height:          obstacleSpriteSize,
 			collisionTop:    35,
 			collisionLeft:   20,
-			collisionWidth:  55,
+			collisionWidth:  50,
 			collisionHeight: 40,
 		},
 		obstacleTypeSnake: {
@@ -162,7 +160,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			height:          obstacleSpriteSize,
 			collisionTop:    45,
 			collisionLeft:   20,
-			collisionWidth:  55,
+			collisionWidth:  50,
 			collisionHeight: 40,
 		},
 		obstacleTypeVulture: {
@@ -378,37 +376,37 @@ func (o *Obstacle) Draw(screen *ebiten.Image) {
 		screen.DrawImage(currentFrame, op)
 
 		// Visualise the collision box for debugging
-		spriteInfo := o.obstacleImages[obs.obstacleType]
-
-		// Determine the collision box
-		collisionLeft := spriteInfo.collisionLeft
-		if collisionLeft == 0 {
-			collisionLeft = 0 // Default to the sprite's leftmost side
-		}
-
-		collisionTop := spriteInfo.collisionTop
-		if collisionTop == 0 {
-			collisionTop = 0 // Default to the sprite's topmost side
-		}
-
-		collisionWidth := spriteInfo.collisionWidth
-		if collisionWidth == 0 {
-			collisionWidth = spriteInfo.width // Use the full sprite width if not specified
-		}
-
-		collisionHeight := spriteInfo.collisionHeight
-		if collisionHeight == 0 {
-			collisionHeight = spriteInfo.height // Use the full sprite height if not specified
-		}
-
-		vector.DrawFilledRect(
-			screen,
-			float32(obs.xPosition+collisionLeft), // X position
-			float32(obs.yPosition+collisionTop),  // YPosition position
-			float32(collisionWidth),              // Width of the obstacle
-			float32(collisionHeight),             // Height of the obstacle
-			color.RGBA{R: 255, A: 128},           // Color of the rectangle (Red with 50% transparency)
-			false,
-		)
+		//spriteInfo := o.obstacleImages[obs.obstacleType]
+		//
+		//// Determine the collision box
+		//collisionLeft := spriteInfo.collisionLeft
+		//if collisionLeft == 0 {
+		//	collisionLeft = 0 // Default to the sprite's leftmost side
+		//}
+		//
+		//collisionTop := spriteInfo.collisionTop
+		//if collisionTop == 0 {
+		//	collisionTop = 0 // Default to the sprite's topmost side
+		//}
+		//
+		//collisionWidth := spriteInfo.collisionWidth
+		//if collisionWidth == 0 {
+		//	collisionWidth = spriteInfo.width // Use the full sprite width if not specified
+		//}
+		//
+		//collisionHeight := spriteInfo.collisionHeight
+		//if collisionHeight == 0 {
+		//	collisionHeight = spriteInfo.height // Use the full sprite height if not specified
+		//}
+		//
+		//vector.DrawFilledRect(
+		//	screen,
+		//	float32(obs.xPosition+collisionLeft), // X position
+		//	float32(obs.yPosition+collisionTop),  // YPosition position
+		//	float32(collisionWidth),              // Width of the obstacle
+		//	float32(collisionHeight),             // Height of the obstacle
+		//	color.RGBA{R: 255, A: 128},           // Color of the rectangle (Red with 50% transparency)
+		//	false,
+		//)
 	}
 }

@@ -7,9 +7,13 @@ func (g *Game) Update() error {
 	// If the game is over, wait for the player to press space to restart
 	if g.GameOver {
 		if ebiten.IsKeyPressed(ebiten.KeySpace) {
-			g.ResetGame() // Reset the game state when space is pressed
+			// Reset the game state when space is pressed
+			if resetErr := g.ResetGame(); resetErr != nil {
+				return resetErr
+			}
 		}
-		return nil // Stop further updates until the game is reset
+		// Stop further updates until the game is reset
+		return nil
 	}
 
 	// Pause game elements during countdown
