@@ -21,6 +21,7 @@ type Player struct {
 	collisionLeft   float64
 	width           float64
 	yPosition       float64
+	xPosition       float64
 	frameOY         int
 	frameWidth      int
 	frameHeight     int
@@ -29,6 +30,7 @@ type Player struct {
 	frameCount      int
 	height          float64
 	isJumping       bool
+	walkingToExit   bool
 }
 
 func NewPlayer(groundY float64, musicManager *music.Manager) (*Player, error) {
@@ -45,6 +47,7 @@ func NewPlayer(groundY float64, musicManager *music.Manager) (*Player, error) {
 		gravity:         0.6,
 		groundY:         groundY,
 		yPosition:       groundY - height,
+		xPosition:       40,
 		frameOY:         32,
 		frameWidth:      32, // Width of a single frame in the sprite sheet
 		frameHeight:     32, // Height of a single frame in the sprite sheet
@@ -57,8 +60,8 @@ func NewPlayer(groundY float64, musicManager *music.Manager) (*Player, error) {
 		collisionLeft:   20,
 		collisionWidth:  25,
 		collisionHeight: 55,
-
-		musicManager: musicManager,
+		walkingToExit:   false,
+		musicManager:    musicManager,
 	}, nil
 }
 
@@ -92,6 +95,44 @@ func (p *Player) CollisionHeight() float64 {
 
 func (p *Player) ScaleFactor() float64 {
 	return p.scaleFactor
+}
+
+// Reset function brings the player back to the ground and resets jumping state.
+func (p *Player) Reset() {
+	// Reset player's position to be on the ground
+	p.yPosition = p.groundY - p.height
+	// Reset jump state
+	p.isJumping = false
+	// Reset velocity to stop vertical movement
+	p.velocityY = 0
+	// Reset animation frame to the first frame (optional, for smoother reset)
+	p.frameIndex = 0
+	p.frameCount = 0
+}
+
+func (p *Player) WalkingToLevelExit() bool {
+	// If walking to exit hasn't started yet, start walking
+	if !p.walkingToExit {
+		p.walkingToExit = true
+	}
+
+	// Get the window width to know where the right side of the screen is
+	windowWidth, _ := ebiten.WindowSize()
+
+	// Check if player has reached the right edge of the screen
+	if p.xPosition+p.width >= float64(windowWidth) {
+		// Player reached the end, stop walking
+		p.walkingToExit = false
+		return false // Return false to indicate the walk is completed
+	}
+
+	// Continue walking to the right by increasing X position
+	// Increment by a certain speed to simulate walking
+	walkingSpeed := 2.0
+	p.xPosition += walkingSpeed
+
+	// Return true to indicate the player is still walking to the exit
+	return true
 }
 
 func (p *Player) Update() {
@@ -135,7 +176,7 @@ func (p *Player) Draw(screen *ebiten.Image) {
 	// Create image drawing options
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(p.scaleFactor, p.scaleFactor) // Scale the sprite to make it larger
-	op.GeoM.Translate(40, p.yPosition)          // Position the sprite at the player's position
+	op.GeoM.Translate(p.xPosition, p.yPosition) // Position the sprite at the player's position
 
 	// Draw the sprite using the current frame
 	screen.DrawImage(subImage, op)

@@ -26,7 +26,7 @@ type Level struct {
 	inLevelGreeting    bool
 }
 
-func NewLevel(screenWidth, screenHeight float64, fontFace font.Face) *Level {
+func NewLevel(screenWidth, screenHeight float64, fontFace font.Face, levelJumpThreshold int) *Level {
 	return &Level{
 		gameOver:           false,
 		inLevelGreeting:    true,
@@ -34,7 +34,7 @@ func NewLevel(screenWidth, screenHeight float64, fontFace font.Face) *Level {
 		countdownStart:     time.Now(),
 		countdown:          3,
 		countdownAlpha:     1.0,
-		levelJumpThreshold: 50,
+		levelJumpThreshold: levelJumpThreshold,
 		level:              1,
 		jumps:              0,
 		score:              0,
@@ -52,23 +52,24 @@ func (l *Level) Score() int {
 	return l.score
 }
 
-// HandleLevelProgression checks if the player should stage up based on the number of jumps
-func (l *Level) HandleLevelProgression() bool {
+func (l *Level) IncreaseScore() {
 	l.jumps++
 	l.score += 10
+}
 
-	if l.jumps >= l.levelJumpThreshold {
-		// Move to the next stage
-		l.isFirstLevel = false
-		l.level++
-		l.jumps = 0 // ResetToFirst the jump counter for the next stage
-		l.inLevelGreeting = true
-		l.countdown = 3 // Start countdown for new stage
-		l.countdownAlpha = 1.0
-		l.countdownStart = time.Now()
-		return true // promoted to next level
-	}
-	return false
+func (l *Level) Clear() bool {
+	return l.jumps >= l.levelJumpThreshold
+}
+
+// Next moves the level to next stage
+func (l *Level) Next() {
+	l.isFirstLevel = false
+	l.level++
+	l.jumps = 0 // ResetToFirst the jump counter for the next stage
+	l.inLevelGreeting = true
+	l.countdown = 3 // Start countdown for new stage
+	l.countdownAlpha = 1.0
+	l.countdownStart = time.Now()
 }
 
 // handleCountdown manages the countdown before each stage

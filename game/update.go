@@ -33,15 +33,21 @@ func (g *Game) Update() error {
 	// Check if there is a collision or the obstacle is cleared
 	collision, obstacleCleared := g.Obstacle.Update()
 	if collision {
-		g.GameOver = true
+		//g.GameOver = true
 		g.MusicManager.PlayCollisionSound()
 	}
-
 	// Track jumps and score, and check for level progression
 	if obstacleCleared {
-		if g.Level.HandleLevelProgression() {
-			// level up
-			g.Obstacle.ResetToFirst()  // reset obstacles for next level
+		// increase score and jumps count
+		g.Level.IncreaseScore()
+	}
+
+	if g.Level.Clear() {
+		if !g.Player.WalkingToLevelExit() {
+			// if walk to level exit is done, transition to next level
+			g.Level.Next()
+			g.Obstacle.ResetToFirst() // reset obstacles for next level
+			g.Player.Reset()
 			g.Obstacle.IncreaseSpeed() // increase obstacle speed
 		}
 	}

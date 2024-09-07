@@ -57,9 +57,10 @@ type Obstacle struct {
 	obstacleSpeed  float64
 	frameDelay     int
 	scaleFactor    float64
+	maxObstacles   int
 }
 
-func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *rand.Rand) (*Obstacle, error) {
+func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *rand.Rand, maxObstacles int) (*Obstacle, error) {
 	obstacle := &Obstacle{
 		minObstacleGap: 250,
 		maxObstacleGap: 400,
@@ -70,6 +71,7 @@ func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *ra
 		player:         player,
 		frameDelay:     5,
 		scaleFactor:    1.5,
+		maxObstacles:   maxObstacles,
 	}
 	obstacleImagesErr := obstacle.loadObstacleSprites()
 	if obstacleImagesErr != nil {
@@ -186,6 +188,43 @@ func (o *Obstacle) randomObstacleType(rng *rand.Rand) obstacleType {
 	return types[rng.Intn(len(types))]
 }
 
+// ResetToFirst clears the current obstacles and resets the obstacle list
+func (o *Obstacle) ResetToFirst() {
+	o.obstacles = []obstacleItem{} // Clear any existing obstacles
+
+	var lastX float64 = o.screenWidth + 300
+	for i := 0; i < o.maxObstacles; i++ {
+		obstacleType := o.randomObstacleType(o.rng)
+
+		// Get the dimensions from the obstacleImages map
+		spriteInfo := o.obstacleImages[obstacleType]
+		obstacleWidth := spriteInfo.width * o.scaleFactor
+		obstacleHeight := spriteInfo.height * o.scaleFactor
+
+		// Calculate the Y position based on obstacle type (e.g., flying or ground-level)
+		var yPosition float64
+		if obstacleType == obstacleTypeVulture {
+			yPosition = o.groundY - 100 - obstacleHeight // Flying obstacle above the ground
+		} else {
+			yPosition = o.groundY - obstacleHeight // Ground-level obstacles
+		}
+
+		// Create obstacle with random gap
+		gap := o.rng.Float64()*(o.maxObstacleGap-o.minObstacleGap) + o.minObstacleGap
+		lastX += gap
+
+		newObstacle := obstacleItem{
+			xPosition:    lastX,
+			speed:        o.obstacleSpeed,
+			obstacleType: obstacleType,
+			width:        obstacleWidth,
+			height:       obstacleHeight,
+			yPosition:    yPosition,
+		}
+		o.obstacles = append(o.obstacles, newObstacle)
+	}
+}
+
 // IncreaseSpeed increases the speed of the obstacles as the player progresses to new levels
 func (o *Obstacle) IncreaseSpeed() {
 	o.obstacleSpeed += 1.0
@@ -201,40 +240,6 @@ func (o *Obstacle) filterObstacles() []obstacleItem {
 		}
 	}
 	return filtered
-}
-
-// addObstacleWithGap add new obstacle with specific height, width, and YPosition position based on type
-func (o *Obstacle) addObstacleWithGap() {
-	lastObstacle := o.obstacles[len(o.obstacles)-1]
-
-	// Create a new obstacle with a random type and random gap
-	gap := o.rng.Float64()*(o.maxObstacleGap-o.minObstacleGap) + o.minObstacleGap
-	obstacleType := o.randomObstacleType(o.rng)
-
-	// Get the dimensions from the obstacleImages map
-	spriteInfo := o.obstacleImages[obstacleType]
-	obstacleWidth := spriteInfo.width * o.scaleFactor
-	obstacleHeight := spriteInfo.height * o.scaleFactor
-
-	// Calculate the YPosition position based on obstacle type (e.g., flying or ground-level)
-	var yPosition float64
-	if obstacleType == obstacleTypeVulture {
-		// Adjust yPosition for flying obstacles
-		yPosition = o.groundY - 100 - obstacleHeight // Flying obstacle above the ground, 100
-	} else {
-		// Ground-level obstacles, adjust to ensure they are on the ground
-		yPosition = o.groundY - obstacleHeight
-	}
-
-	newObstacle := obstacleItem{
-		xPosition:    lastObstacle.xPosition + gap,
-		speed:        o.obstacleSpeed,
-		obstacleType: obstacleType,
-		width:        obstacleWidth,  // Use scaled width
-		height:       obstacleHeight, // Use scaled height
-		yPosition:    yPosition,      // Use adjusted YPosition position
-	}
-	o.obstacles = append(o.obstacles, newObstacle)
 }
 
 // collisionDetected checks for a collision between the player and an obstacle
@@ -294,39 +299,6 @@ func (o *Obstacle) cleared() bool {
 	return false
 }
 
-// ResetToFirst clears the current obstacles and resets the obstacle list
-func (o *Obstacle) ResetToFirst() {
-	// Choose a random obstacle type for the first obstacle
-	obstacleType := o.randomObstacleType(o.rng)
-
-	// Get the dimensions from the obstacleImages map
-	spriteInfo := o.obstacleImages[obstacleType]
-	obstacleWidth := spriteInfo.width * o.scaleFactor
-	obstacleHeight := spriteInfo.height * o.scaleFactor
-
-	// Calculate the YPosition position based on obstacle type (e.g., flying or ground-level)
-	var yPosition float64
-	if obstacleType == obstacleTypeVulture {
-		// Adjust yPosition for flying obstacles
-		yPosition = o.groundY - 100 - obstacleHeight // Flying obstacle above the ground
-	} else {
-		// Ground-level obstacles, adjust to ensure they are on the ground
-		yPosition = o.groundY - obstacleHeight
-	}
-
-	// Start with one obstacle far away
-	o.obstacles = []obstacleItem{
-		{
-			xPosition:    o.screenWidth + 300,
-			speed:        o.obstacleSpeed,
-			obstacleType: obstacleType,
-			width:        obstacleWidth,
-			height:       obstacleHeight,
-			yPosition:    yPosition,
-		},
-	}
-}
-
 // Update handles the movement of obstacles and checks for collisions
 func (o *Obstacle) Update() (collision bool, cleared bool) {
 	for i := range o.obstacles {
@@ -343,11 +315,6 @@ func (o *Obstacle) Update() (collision bool, cleared bool) {
 		}
 	}
 	o.obstacles = o.filterObstacles() // Remove obstacles that have moved off-screen
-
-	// Ensure proper gap between consecutive obstacles
-	if len(o.obstacles) == 0 || (o.obstacles[len(o.obstacles)-1].xPosition < o.screenWidth-o.minObstacleGap) {
-		o.addObstacleWithGap() // Add new obstacle with appropriate gap
-	}
 
 	// Check for collisions with each obstacle
 	for _, obs := range o.obstacles {
