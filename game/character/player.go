@@ -184,7 +184,6 @@ func (p *Player) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(p.scaleFactor, p.scaleFactor) // Scale the sprite to make it larger
 	op.GeoM.Translate(p.xPosition, p.yPosition) // Position the sprite at the player's position
-	op.ColorScale.ScaleAlpha(0.5)
 	// Draw the sprite using the current frame
 	screen.DrawImage(subImage, op)
 
