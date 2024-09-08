@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	ScreenWidth  = 800
-	ScreenHeight = 400
+	ScreenWidth    = 800
+	ScreenHeight   = 400
+	LevelThreshold = 5
 )
 
 // Game struct holds game state variables
@@ -52,19 +53,19 @@ func NewGame(fontFace font.Face) (*Game, error) {
 	}
 
 	// initialise cloud
-	cloud, cloudErr := background.NewCloud(ScreenWidth, ScreenHeight, 5, rng)
+	cloud, cloudErr := background.NewCloud(ScreenWidth, ScreenHeight, rng)
 	if cloudErr != nil {
 		return nil, cloudErr
 	}
 
 	// initialise character
-	player, playerErr := character.NewPlayer(scene.GroundY(), musicManager)
+	player, playerErr := character.NewPlayer(ScreenWidth, scene.GroundY(), musicManager)
 	if playerErr != nil {
 		return nil, playerErr
 	}
 
 	// initialise obstacle
-	obstacle, obstacleErr := enemy.NewObstacle(ScreenWidth, scene.GroundY(), player, rng, 50)
+	obstacle, obstacleErr := enemy.NewObstacle(ScreenWidth, scene.GroundY(), player, rng, LevelThreshold)
 	if obstacleErr != nil {
 		return nil, obstacleErr
 	}
@@ -81,7 +82,7 @@ func NewGame(fontFace font.Face) (*Game, error) {
 	}
 
 	// initialise stage
-	level := stage.NewLevel(ScreenWidth, ScreenHeight, fontFace, 50)
+	level := stage.NewLevel(ScreenWidth, ScreenHeight, fontFace, LevelThreshold)
 	game.Level = level
 
 	// Start playing the background music
@@ -92,9 +93,10 @@ func NewGame(fontFace font.Face) (*Game, error) {
 
 // ResetGame resets the game state
 func (g *Game) ResetGame() error {
-	g.Obstacle.ResetToFirst()
+	g.Scene.Reset()
+	g.Obstacle.Reset()
 	g.Player.Reset()
-	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.FontFace, 50)
+	g.Level = stage.NewLevel(ScreenWidth, ScreenHeight, g.FontFace, LevelThreshold)
 	g.GameOver = false
 	return nil
 }

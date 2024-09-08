@@ -99,7 +99,7 @@ func (l *Level) Update() {
 func (l *Level) Draw(screen *ebiten.Image) {
 	// If we're in the stage greeting phase, show the greeting and countdown
 	if l.inLevelGreeting {
-		msg := fmt.Sprintf("Welcome to Level %d", l.level)
+		msg := fmt.Sprintf("Level %d", l.level)
 		text.Draw(screen, msg, l.fontFace, int(l.screenWidth/4), int(l.screenHeight/3), color.RGBA{R: 255, G: 255, B: 255, A: 255})
 
 		// Countdown logic: Fade-in/out based on alpha value

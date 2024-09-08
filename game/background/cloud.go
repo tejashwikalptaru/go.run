@@ -27,7 +27,7 @@ type Cloud struct {
 	screenHeight  float64
 }
 
-func NewCloud(screenWidth, screenHeight, numClouds int, rng *rand.Rand) (*Cloud, error) {
+func NewCloud(screenWidth, screenHeight float64, rng *rand.Rand) (*Cloud, error) {
 	image, imageErr := resources.GetImage(images.Cloud)
 	if imageErr != nil {
 		return nil, imageErr
@@ -35,15 +35,15 @@ func NewCloud(screenWidth, screenHeight, numClouds int, rng *rand.Rand) (*Cloud,
 	cloud := &Cloud{
 		cloudWidth:    100,
 		minCloudY:     5,
-		maxCloudY:     float64(screenHeight / 4),
+		maxCloudY:     screenHeight / 4,
 		minCloudSpeed: 0.5,
 		maxCloudSpeed: 1.0,
-		screenWidth:   float64(screenWidth),
-		screenHeight:  float64(screenHeight),
+		screenWidth:   screenWidth,
+		screenHeight:  screenHeight,
 		rng:           rng,
 		cloudImage:    ebiten.NewImageFromImage(image),
 	}
-	for i := 0; i < numClouds; i++ {
+	for i := 0; i < 5; i++ {
 		cloud.addCloud()
 	}
 	return cloud, nil

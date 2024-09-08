@@ -34,15 +34,16 @@ type obstacleSpriteInfo struct {
 }
 
 type obstacleItem struct {
-	obstacleType obstacleType
-	xPosition    float64
-	speed        float64
-	frameIndex   int
-	frameCount   int
-	height       float64
-	width        float64
-	yPosition    float64
-	passed       bool
+	obstacleType    obstacleType
+	xPosition       float64
+	speed           float64
+	frameIndex      int
+	frameCount      int
+	height          float64
+	width           float64
+	yPosition       float64
+	passed          bool
+	isPowerUpObject bool
 }
 
 type Obstacle struct {
@@ -77,7 +78,7 @@ func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *ra
 	if obstacleImagesErr != nil {
 		return nil, obstacleImagesErr
 	}
-	obstacle.ResetToFirst()
+	obstacle.Prepare()
 	return obstacle, nil
 }
 
@@ -188,11 +189,11 @@ func (o *Obstacle) randomObstacleType(rng *rand.Rand) obstacleType {
 	return types[rng.Intn(len(types))]
 }
 
-// ResetToFirst clears the current obstacles and resets the obstacle list
-func (o *Obstacle) ResetToFirst() {
+// Prepare creates the obstacles
+func (o *Obstacle) Prepare() {
 	o.obstacles = []obstacleItem{} // Clear any existing obstacles
 
-	var lastX float64 = o.screenWidth + 300
+	var lastX = o.screenWidth + 300
 	for i := 0; i < o.maxObstacles; i++ {
 		obstacleType := o.randomObstacleType(o.rng)
 
@@ -228,6 +229,11 @@ func (o *Obstacle) ResetToFirst() {
 // IncreaseSpeed increases the speed of the obstacles as the player progresses to new levels
 func (o *Obstacle) IncreaseSpeed() {
 	o.obstacleSpeed += 1.0
+}
+
+func (o *Obstacle) Reset() {
+	o.obstacleSpeed = 5
+	o.Prepare()
 }
 
 // filterObstacles removes obstacles that have moved off-screen
@@ -300,7 +306,7 @@ func (o *Obstacle) cleared() bool {
 }
 
 // Update handles the movement of obstacles and checks for collisions
-func (o *Obstacle) Update() (collision bool, cleared bool) {
+func (o *Obstacle) Update() (collision, isPowerUpObject, cleared bool) {
 	for i := range o.obstacles {
 		o.obstacles[i].xPosition -= o.obstacles[i].speed // Move the obstacle to the left
 
@@ -319,11 +325,11 @@ func (o *Obstacle) Update() (collision bool, cleared bool) {
 	// Check for collisions with each obstacle
 	for _, obs := range o.obstacles {
 		if o.collisionDetected(&obs) {
-			// Trigger game over if a collision is detected
-			return true, false
+			// a collision is detected
+			return true, obs.isPowerUpObject, false
 		}
 	}
-	return false, o.cleared()
+	return false, false, o.cleared()
 }
 
 // Draw renders the obstacles on the screen
