@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   release:
     if: "!contains(github.event.head_commit.message, 'Bump version')"
@@ -61,21 +64,21 @@ jobs:
 
       - name: Build for macOS
         run: |
-          make build-darwin
+          make deps && make build-darwin
         env:
           GOARCH: amd64
           GOOS: darwin
 
       - name: Build for Linux
         run: |
-          make build-linux
+          make deps && make build-linux
         env:
           GOARCH: amd64
           GOOS: linux
 
       - name: Build for Windows
         run: |
-          make build-windows
+          make deps && make build-windows
         env:
           GOARCH: amd64
           GOOS: windows
