@@ -1,8 +1,12 @@
 package enemy
 
 import (
+	"fmt"
 	"image"
+	"image/color"
 	"math/rand"
+
+	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/character"
@@ -59,9 +63,10 @@ type Obstacle struct {
 	frameDelay     int
 	scaleFactor    float64
 	maxObstacles   int
+	debug          bool
 }
 
-func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *rand.Rand, maxObstacles int) (*Obstacle, error) {
+func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *rand.Rand, maxObstacles int, debug bool) (*Obstacle, error) {
 	obstacle := &Obstacle{
 		minObstacleGap: 250,
 		maxObstacleGap: 400,
@@ -73,6 +78,7 @@ func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *ra
 		frameDelay:     5,
 		scaleFactor:    1.5,
 		maxObstacles:   maxObstacles,
+		debug:          debug,
 	}
 	obstacleImagesErr := obstacle.loadObstacleSprites()
 	if obstacleImagesErr != nil {
@@ -86,7 +92,10 @@ func NewObstacle(screenWidth, groundY float64, player *character.Player, rng *ra
 func (o *Obstacle) loadFrames(img *ebiten.Image, frameWidth, frameHeight, frameCount int) []*ebiten.Image {
 	frames := make([]*ebiten.Image, frameCount)
 	for i := 0; i < frameCount; i++ {
-		frame := img.SubImage(image.Rect(i*frameWidth, 0, (i+1)*frameWidth, frameHeight)).(*ebiten.Image)
+		frame, ok := img.SubImage(image.Rect(i*frameWidth, 0, (i+1)*frameWidth, frameHeight)).(*ebiten.Image)
+		if ok && o.debug {
+			fmt.Println("failed to load sub image for obstacle")
+		}
 		frames[i] = frame
 	}
 	return frames
@@ -343,38 +352,40 @@ func (o *Obstacle) Draw(screen *ebiten.Image) {
 		currentFrame := o.obstacleImages[obs.obstacleType].frames[obs.frameIndex]
 		screen.DrawImage(currentFrame, op)
 
-		// Visualise the collision box for debugging
-		//spriteInfo := o.obstacleImages[obs.obstacleType]
-		//
-		//// Determine the collision box
-		//collisionLeft := spriteInfo.collisionLeft
-		//if collisionLeft == 0 {
-		//	collisionLeft = 0 // Default to the sprite's leftmost side
-		//}
-		//
-		//collisionTop := spriteInfo.collisionTop
-		//if collisionTop == 0 {
-		//	collisionTop = 0 // Default to the sprite's topmost side
-		//}
-		//
-		//collisionWidth := spriteInfo.collisionWidth
-		//if collisionWidth == 0 {
-		//	collisionWidth = spriteInfo.width // Use the full sprite width if not specified
-		//}
-		//
-		//collisionHeight := spriteInfo.collisionHeight
-		//if collisionHeight == 0 {
-		//	collisionHeight = spriteInfo.height // Use the full sprite height if not specified
-		//}
-		//
-		//vector.DrawFilledRect(
-		//	screen,
-		//	float32(obs.xPosition+collisionLeft), // X position
-		//	float32(obs.yPosition+collisionTop),  // YPosition position
-		//	float32(collisionWidth),              // Width of the obstacle
-		//	float32(collisionHeight),             // Height of the obstacle
-		//	color.RGBA{R: 255, A: 128},           // Color of the rectangle (Red with 50% transparency)
-		//	false,
-		//)
+		if o.debug {
+			// Visualise the collision box for debugging
+			spriteInfo := o.obstacleImages[obs.obstacleType]
+
+			// Determine the collision box
+			collisionLeft := spriteInfo.collisionLeft
+			if collisionLeft == 0 {
+				collisionLeft = 0 // Default to the sprite's leftmost side
+			}
+
+			collisionTop := spriteInfo.collisionTop
+			if collisionTop == 0 {
+				collisionTop = 0 // Default to the sprite's topmost side
+			}
+
+			collisionWidth := spriteInfo.collisionWidth
+			if collisionWidth == 0 {
+				collisionWidth = spriteInfo.width // Use the full sprite width if not specified
+			}
+
+			collisionHeight := spriteInfo.collisionHeight
+			if collisionHeight == 0 {
+				collisionHeight = spriteInfo.height // Use the full sprite height if not specified
+			}
+
+			vector.DrawFilledRect(
+				screen,
+				float32(obs.xPosition+collisionLeft), // X position
+				float32(obs.yPosition+collisionTop),  // YPosition position
+				float32(collisionWidth),              // Width of the obstacle
+				float32(collisionHeight),             // Height of the obstacle
+				color.RGBA{R: 255, A: 128},           // Color of the rectangle (Red with 50% transparency)
+				false,
+			)
+		}
 	}
 }

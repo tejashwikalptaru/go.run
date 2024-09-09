@@ -1,20 +1,20 @@
 package main
 
 import (
+	"flag"
 	"log"
-
-	"github.com/tejashwikalptaru/go.run/resources/fonts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game"
 )
 
 func main() {
-	// Initialize game and load font
-	fontFace := fonts.LoadFont(fonts.ManaSpace)
+	// flags
+	debug := flag.Bool("debug", false, "enable debug mode")
+	flag.Parse()
 
-	// Create game instance and set font
-	g, err := game.NewGame(fontFace)
+	// Create game instance
+	g, err := game.NewGame(*debug)
 	if err != nil {
 		log.Fatal(err)
 	}

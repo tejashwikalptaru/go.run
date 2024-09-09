@@ -6,7 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/tejashwikalptaru/go.run/resources/fonts"
 )
 
 // Draw renders the game screen
@@ -19,8 +20,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// If game over, display message
 	if g.GameOver {
-		msg := fmt.Sprintf("GAME OVER\nScore: %d\nPress Space to Restart", g.Level.Score())
-		text.Draw(screen, msg, g.FontFace, ScreenWidth/4, ScreenHeight/2, color.RGBA{R: 255, A: 255})
+		msg := fmt.Sprintf("GAME OVER\n\nScore: %d\nPress Space to Restart", g.Level.Score())
+		op := &text.DrawOptions{
+			LayoutOptions: text.LayoutOptions{
+				LineSpacing:  50,
+				PrimaryAlign: text.AlignCenter,
+			},
+		}
+		op.GeoM.Translate(ScreenWidth/2, ScreenHeight/6)
+		op.ColorScale.ScaleWithColor(color.RGBA{R: 255, A: 255})
+		text.Draw(screen, msg, &text.GoTextFace{
+			Source: g.TextFaceSource,
+			Size:   fonts.DefaultTextSize,
+		}, op)
 	} else {
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d", g.Level.Score()))
 	}

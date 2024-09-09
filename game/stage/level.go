@@ -5,14 +5,15 @@ import (
 	"image/color"
 	"time"
 
+	"github.com/tejashwikalptaru/go.run/resources/fonts"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 type Level struct {
 	countdownStart     time.Time
-	fontFace           font.Face
+	textFaceSource     *text.GoTextFaceSource
 	countdownAlpha     float64
 	countdown          int
 	levelJumpThreshold int
@@ -26,7 +27,7 @@ type Level struct {
 	inLevelGreeting    bool
 }
 
-func NewLevel(screenWidth, screenHeight float64, fontFace font.Face, levelJumpThreshold int) *Level {
+func NewLevel(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, levelJumpThreshold int) *Level {
 	return &Level{
 		gameOver:           false,
 		inLevelGreeting:    true,
@@ -38,7 +39,7 @@ func NewLevel(screenWidth, screenHeight float64, fontFace font.Face, levelJumpTh
 		level:              1,
 		jumps:              0,
 		score:              0,
-		fontFace:           fontFace,
+		textFaceSource:     textFaceSource,
 		screenWidth:        screenWidth,
 		screenHeight:       screenHeight,
 	}
@@ -100,12 +101,24 @@ func (l *Level) Draw(screen *ebiten.Image) {
 	// If we're in the stage greeting phase, show the greeting and countdown
 	if l.inLevelGreeting {
 		msg := fmt.Sprintf("Level %d", l.level)
-		text.Draw(screen, msg, l.fontFace, int(l.screenWidth/4), int(l.screenHeight/3), color.RGBA{R: 255, G: 255, B: 255, A: 255})
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(l.screenWidth/3, l.screenHeight/6)
+		op.ColorScale.ScaleWithColor(color.RGBA{R: 255, G: 255, B: 255, A: 255})
+		text.Draw(screen, msg, &text.GoTextFace{
+			Source: l.textFaceSource,
+			Size:   fonts.DefaultTextSize,
+		}, op)
 
 		// Countdown logic: Fade-in/out based on alpha value
-		countdownColor := color.RGBA{R: 255, G: 0, B: 0, A: uint8(l.countdownAlpha * 255)}
-		countdownText := fmt.Sprintf("%d", l.countdown)
-		text.Draw(screen, countdownText, l.fontFace, int(l.screenWidth/2), int(l.screenHeight/2), countdownColor)
+		countdownText := fmt.Sprintf("Ready... %d", l.countdown)
+		op1 := &text.DrawOptions{}
+		op1.GeoM.Translate(l.screenWidth/3, l.screenHeight/3)
+		op1.ColorScale.ScaleAlpha(float32(l.countdownAlpha * 255))
+		op1.ColorScale.ScaleWithColor(color.RGBA{R: 255, G: 0, B: 0})
+		text.Draw(screen, countdownText, &text.GoTextFace{
+			Source: l.textFaceSource,
+			Size:   fonts.DefaultTextSize,
+		}, op1)
 
 		// Update alpha value for smooth fade in/out
 		l.countdownAlpha -= 0.05

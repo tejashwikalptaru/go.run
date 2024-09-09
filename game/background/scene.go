@@ -17,18 +17,18 @@ type backgroundInfo struct {
 type Scene struct {
 	backGroundImage     *backgroundInfo
 	newBackGroundImage  *backgroundInfo
-	groundHeight        float64
-	groundY             float64
+	backgrounds         []backgroundInfo
+	screenWidth         float64
 	backgroundX         float64
 	backgroundSpeed     float64
-	screenWidth         float64
+	groundY             float64
 	screenHeight        float64
-	transitioning       bool
+	backgroundIndex     int
+	groundHeight        float64
 	fadeAlpha           float32
 	fadeSpeed           float32
+	transitioning       bool
 	transitionCompleted bool
-	backgroundIndex     int
-	backgrounds         []backgroundInfo
 }
 
 func NewScene(screenWidth, screenHeight int) (*Scene, error) {

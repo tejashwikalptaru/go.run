@@ -2,40 +2,46 @@ package character
 
 import (
 	"bytes"
+	"fmt"
+	"image"
+	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2/vector"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resources/sprites"
-	"image"
 )
 
 type Player struct {
 	sprite           *ebiten.Image
 	musicManager     *music.Manager
+	xPosition        float64
+	frameDelay       int
 	collisionWidth   float64
-	collisionHeight  float64
-	velocityY        float64
 	gravity          float64
 	groundY          float64
 	scaleFactor      float64
 	collisionTop     float64
 	collisionLeft    float64
 	width            float64
-	yPosition        float64
-	xPosition        float64
-	xPositionDesired float64
 	frameOY          int
+	velocityY        float64
+	xPositionDesired float64
+	yPosition        float64
 	frameWidth       int
 	frameHeight      int
 	frameIndex       int
-	frameDelay       int
+	collisionHeight  float64
 	frameCount       int
 	height           float64
-	isJumping        bool
-	walkingToExit    bool
 	screenWidth      float64
+	walkingToExit    bool
+	isJumping        bool
+	debug            bool
 }
 
-func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager) (*Player, error) {
+func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug bool) (*Player, error) {
 	height := 64.0
 	// Load the player sprite sheet (runner animation)
 	img, _, err := image.Decode(bytes.NewReader(sprites.Runner))
@@ -66,6 +72,7 @@ func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager) (*Play
 		walkingToExit:    false,
 		musicManager:     musicManager,
 		screenWidth:      screenWidth,
+		debug:            debug,
 	}, nil
 }
 
@@ -178,7 +185,10 @@ func (p *Player) Draw(screen *ebiten.Image) {
 	sx := p.frameIndex * p.frameWidth
 
 	// Define the part of the sprite sheet to draw (one frame)
-	subImage := p.sprite.SubImage(image.Rect(sx, p.frameOY, sx+p.frameWidth, p.frameOY+p.frameHeight)).(*ebiten.Image)
+	subImage, ok := p.sprite.SubImage(image.Rect(sx, p.frameOY, sx+p.frameWidth, p.frameOY+p.frameHeight)).(*ebiten.Image)
+	if ok && p.debug {
+		fmt.Println("failed to load sub image for player")
+	}
 
 	// Create image drawing options
 	op := &ebiten.DrawImageOptions{}
@@ -187,35 +197,37 @@ func (p *Player) Draw(screen *ebiten.Image) {
 	// Draw the sprite using the current frame
 	screen.DrawImage(subImage, op)
 
-	//Visualise the collision box for debugging
-	//collisionTop := p.collisionTop
-	//if collisionTop == 0 {
-	//	collisionTop = 0
-	//}
-	//
-	//collisionLeft := p.collisionLeft
-	//if collisionLeft == 0 {
-	//	collisionLeft = 0
-	//}
-	//
-	//collisionWidth := p.collisionWidth
-	//if collisionWidth == 0 {
-	//	collisionWidth = p.width
-	//}
-	//
-	//collisionHeight := p.collisionHeight
-	//if collisionHeight == 0 {
-	//	collisionHeight = p.height
-	//}
-	//
-	//// Draw the player's collision rectangle
-	//vector.DrawFilledRect(
-	//	screen,
-	//	float32(p.xPosition+collisionLeft), // X position with collision offset
-	//	float32(p.yPosition+collisionTop),  // Y position with collision offset
-	//	float32(collisionWidth),            // Scaled collision width
-	//	float32(collisionHeight),           // Scaled collision height
-	//	color.RGBA{R: 255, A: 128},         // Color of the rectangle (Red with 50% transparency)
-	//	false,
-	//)
+	if p.debug {
+		// Visualise the collision box for debugging
+		collisionTop := p.collisionTop
+		if collisionTop == 0 {
+			collisionTop = 0
+		}
+
+		collisionLeft := p.collisionLeft
+		if collisionLeft == 0 {
+			collisionLeft = 0
+		}
+
+		collisionWidth := p.collisionWidth
+		if collisionWidth == 0 {
+			collisionWidth = p.width
+		}
+
+		collisionHeight := p.collisionHeight
+		if collisionHeight == 0 {
+			collisionHeight = p.height
+		}
+
+		// Draw the player's collision rectangle
+		vector.DrawFilledRect(
+			screen,
+			float32(p.xPosition+collisionLeft), // X position with collision offset
+			float32(p.yPosition+collisionTop),  // Y position with collision offset
+			float32(collisionWidth),            // Scaled collision width
+			float32(collisionHeight),           // Scaled collision height
+			color.RGBA{R: 255, A: 128},         // Color of the rectangle (Red with 50% transparency)
+			false,
+		)
+	}
 }

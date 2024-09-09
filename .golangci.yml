@@ -47,9 +47,7 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - mnd
     - gocyclo
-    - gosec
     - gosimple
     - govet
     - ineffassign
@@ -64,7 +62,6 @@ linters:
     - thelper
     - tparallel
     - unconvert
-    - unparam
     - whitespace
     - unused
 

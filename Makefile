@@ -4,7 +4,7 @@ BINARY_NAME=go.run
 build:
 	GOARCH=amd64 GOOS=darwin go build -o .build/${BINARY_NAME} cmd/main.go
  	GOARCH=amd64 GOOS=linux go build -o .build/${BINARY_NAME} cmd/main.go
- 	GOARCH=amd64 GOOS=windows go build -o .build/${BINARY_NAME}  cmd/mainmain.go
+ 	GOARCH=amd64 GOOS=windows go build -o .build/${BINARY_NAME}  cmd/main.go
 
 run: build
 	./.build/${BINARY_NAME}
