@@ -9,10 +9,24 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    if: "!contains(github.event.head_commit.message, 'Bump version')"
-    name: Release and Build Binaries
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            ext: ""
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+            ext: ""
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            ext: ".exe"
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout the code
@@ -22,6 +36,30 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: 1.23
+
+      - name: Install dependencies
+        run: make dep
+
+      - name: Build for OS
+        run: |
+          GOARCH=${{ matrix.goarch }} GOOS=${{ matrix.goos }} go build -o .build/go.run${{ matrix.ext }} cmd/main.go
+
+      - name: Zip the build
+        run: |
+          zip -r go.run-${{ matrix.goos }}-${{ steps.increment_version.outputs.new_version }}.zip .build/go.run${{ matrix.ext }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: go.run-${{ matrix.goos }}-${{ steps.increment_version.outputs.new_version }}.zip
+          path: go.run-${{ matrix.goos }}-${{ steps.increment_version.outputs.new_version }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
 
       - name: Get current version
         id: get_version
@@ -34,11 +72,14 @@ jobs:
           echo "Current version: $version"
           echo "::set-output name=current_version::$version"
 
-      - name: Increment version
+      - name: Increment version and add alpha suffix
         id: increment_version
         run: |
           current_version=${{ steps.get_version.outputs.current_version }}
+          # Increment the patch version
           new_version=$(echo $current_version | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          # Append the alpha suffix
+          new_version="${new_version}-alpha"
           echo "New version: $new_version"
           echo $new_version > VERSION
           echo "::set-output name=new_version::$new_version"
@@ -60,40 +101,22 @@ jobs:
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           release_name: Release ${{ steps.increment_version.outputs.new_version }}
           draft: false
-          prerelease: false
+          prerelease: true  # Mark as pre-release (alpha/beta)
 
-      - name: Build for macOS
-        run: |
-          make deps && make build-darwin
-        env:
-          GOARCH: amd64
-          GOOS: darwin
+      - name: Download macOS build
+        uses: actions/download-artifact@v3
+        with:
+          name: go.run-darwin-${{ steps.increment_version.outputs.new_version }}.zip
 
-      - name: Build for Linux
-        run: |
-          make deps && make build-linux
-        env:
-          GOARCH: amd64
-          GOOS: linux
+      - name: Download Linux build
+        uses: actions/download-artifact@v3
+        with:
+          name: go.run-linux-${{ steps.increment_version.outputs.new_version }}.zip
 
-      - name: Build for Windows
-        run: |
-          make deps && make build-windows
-        env:
-          GOARCH: amd64
-          GOOS: windows
-
-      - name: Zip macOS build
-        run: zip -r go.run-darwin-${{ steps.increment_version.outputs.new_version }}.zip .build/go.run
-        shell: bash
-
-      - name: Zip Linux build
-        run: zip -r go.run-linux-${{ steps.increment_version.outputs.new_version }}.zip .build/go.run
-        shell: bash
-
-      - name: Zip Windows build
-        run: zip -r go.run-windows-${{ steps.increment_version.outputs.new_version }}.zip .build/go.run.exe
-        shell: bash
+      - name: Download Windows build
+        uses: actions/download-artifact@v3
+        with:
+          name: go.run-windows-${{ steps.increment_version.outputs.new_version }}.zip
 
       - name: Upload macOS binary to release
         uses: actions/upload-release-asset@v1

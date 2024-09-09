@@ -1,4 +1,4 @@
-.PHONY: lint deps
+.PHONY: build run clean dep lint
 BINARY_NAME=go.run
 
 build:
