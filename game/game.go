@@ -17,7 +17,7 @@ import (
 const (
 	ScreenWidth    = 800
 	ScreenHeight   = 400
-	LevelThreshold = 5
+	LevelThreshold = 50
 )
 
 // Game struct holds game state variables
