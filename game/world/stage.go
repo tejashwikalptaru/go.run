@@ -19,7 +19,7 @@ func NewStage(name string, screenWidth, screenHeight float64, textFaceSource *te
 	return &Stage{
 		levels:         levels,
 		name:           name,
-		currentLevel:   0,
+		currentLevel:   1,
 		screenWidth:    screenWidth,
 		screenHeight:   screenHeight,
 		textFaceSource: textFaceSource,

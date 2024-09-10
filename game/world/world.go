@@ -25,7 +25,7 @@ type World struct {
 func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, player *character.Player) *World {
 	world := World{
 		player:       player,
-		currentStage: 0,
+		currentStage: 1,
 		fadeAlpha:    0.0,
 		fadeSpeed:    0.01,
 	}
@@ -62,6 +62,25 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 		}), nil),
 	})
 	world.stages = append(world.stages, jungleStage)
+
+	// desert stage
+	desertStage := NewStage("Desert", screenWidth, screenHeight, textFaceSource, []*Level{
+		NewLevel(background.NewParallax([]*background.Layer{
+			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/mountain/1/5.png")),
+			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/mountain/1/4.png")),
+			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/1/3.png")),
+			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/1/2.png")),
+			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/mountain/1/1.png")),
+		}), nil),
+		NewLevel(background.NewParallax([]*background.Layer{
+			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/mountain/2/5.png")),
+			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/mountain/2/4.png")),
+			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/2/3.png")),
+			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/2/2.png")),
+			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/mountain/2/1.png")),
+		}), nil),
+	})
+	world.stages = append(world.stages, desertStage)
 	return &world
 }
 
