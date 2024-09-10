@@ -2,14 +2,12 @@ package character
 
 import (
 	"fmt"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resource"
 	"image"
 	"image/color"
-
-	"github.com/hajimehoshi/ebiten/v2/vector"
-
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/tejashwikalptaru/go.run/game/music"
 )
 
 type Player struct {
@@ -68,75 +66,6 @@ func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug 
 		screenWidth:      screenWidth,
 		debug:            debug,
 	}
-}
-
-func (p *Player) Width() float64 {
-	return p.width
-}
-
-func (p *Player) Height() float64 {
-	return p.height
-}
-
-func (p *Player) YPosition() float64 {
-	return p.yPosition
-}
-
-func (p *Player) CollisionTop() float64 {
-	return p.collisionTop
-}
-
-func (p *Player) CollisionLeft() float64 {
-	return p.collisionLeft
-}
-
-func (p *Player) CollisionWidth() float64 {
-	return p.collisionWidth
-}
-
-func (p *Player) CollisionHeight() float64 {
-	return p.collisionHeight
-}
-
-func (p *Player) ScaleFactor() float64 {
-	return p.scaleFactor
-}
-
-func (p *Player) IsImmune() bool {
-	return false
-}
-
-// Reset function brings the player back to the ground and resets jumping state.
-func (p *Player) Reset() {
-	p.xPosition = -70
-	p.yPosition = p.groundY - p.height
-	p.isJumping = false
-	p.velocityY = 0
-	p.frameIndex = 0
-	p.frameCount = 0
-}
-
-func (p *Player) WalkingToLevelExit() bool {
-	// If walking to exit hasn't started yet, start walking
-	if !p.walkingToExit {
-		p.walkingToExit = true
-	}
-
-	// Check if player has reached the right edge of the screen
-	if p.xPosition+p.width >= p.screenWidth+100 {
-		// Player reached the end, stop walking
-		p.walkingToExit = false
-		p.xPosition = -70
-		return false // Return false to indicate the walk is completed
-	}
-
-	// Continue walking to the right by increasing X position
-	// Increment by a certain speed to simulate walking
-	walkingSpeed := 2.0
-	p.xPosition += walkingSpeed
-
-	// Return true to indicate the player is still walking to the exit
-	return true
 }
 
 func (p *Player) Update() {
@@ -227,4 +156,73 @@ func (p *Player) Draw(screen *ebiten.Image) {
 			false,
 		)
 	}
+}
+
+func (p *Player) Width() float64 {
+	return p.width
+}
+
+func (p *Player) Height() float64 {
+	return p.height
+}
+
+func (p *Player) YPosition() float64 {
+	return p.yPosition
+}
+
+func (p *Player) CollisionTop() float64 {
+	return p.collisionTop
+}
+
+func (p *Player) CollisionLeft() float64 {
+	return p.collisionLeft
+}
+
+func (p *Player) CollisionWidth() float64 {
+	return p.collisionWidth
+}
+
+func (p *Player) CollisionHeight() float64 {
+	return p.collisionHeight
+}
+
+func (p *Player) ScaleFactor() float64 {
+	return p.scaleFactor
+}
+
+func (p *Player) IsImmune() bool {
+	return false
+}
+
+// Reset function brings the player back to the ground and resets jumping state.
+func (p *Player) Reset() {
+	p.xPosition = -70
+	p.yPosition = p.groundY - p.height
+	p.isJumping = false
+	p.velocityY = 0
+	p.frameIndex = 0
+	p.frameCount = 0
+}
+
+func (p *Player) WalkingToLevelExit() bool {
+	// If walking to exit hasn't started yet, start walking
+	if !p.walkingToExit {
+		p.walkingToExit = true
+	}
+
+	// Check if player has reached the right edge of the screen
+	if p.xPosition+p.width >= p.screenWidth+100 {
+		// Player reached the end, stop walking
+		p.walkingToExit = false
+		p.xPosition = -70
+		return false // Return false to indicate the walk is completed
+	}
+
+	// Continue walking to the right by increasing X position
+	// Increment by a certain speed to simulate walking
+	walkingSpeed := 2.0
+	p.xPosition += walkingSpeed
+
+	// Return true to indicate the player is still walking to the exit
+	return true
 }

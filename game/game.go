@@ -31,12 +31,13 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 // NewGame initializes a new game instance
 func NewGame(debug bool) (*Game, error) {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	textFaceSource := resource.Provider{}.TextFaceSource("fonts/manaspace/manaspc.ttf")
 	game := &Game{
 		RNG:            rng,
 		GameOver:       false,
 		debug:          debug,
-		textFaceSource: resource.Provider{}.TextFaceSource("fonts/manaspace/manaspc.ttf"),
-		world:          world.New(ScreenWidth, ScreenHeight, character.NewPlayer(ScreenWidth, ScreenHeight-40, nil, false)),
+		textFaceSource: textFaceSource,
+		world:          world.New(ScreenWidth, ScreenHeight, textFaceSource, character.NewPlayer(ScreenWidth, ScreenHeight-40, nil, false)),
 	}
 	return game, nil
 }
