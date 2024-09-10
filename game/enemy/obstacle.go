@@ -10,8 +10,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/character"
-	"github.com/tejashwikalptaru/go.run/resources"
-	"github.com/tejashwikalptaru/go.run/resources/sprites"
+	"github.com/tejashwikalptaru/go.run/resource"
 )
 
 type obstacleType string
@@ -102,34 +101,10 @@ func (o *Obstacle) loadFrames(img *ebiten.Image, frameWidth, frameHeight, frameC
 }
 
 func (o *Obstacle) loadObstacleSprites() error {
-	deceased, deceasedErr := resources.GetImage(sprites.DeceasedWalk)
-	if deceasedErr != nil {
-		return deceasedErr
-	}
-	hyena, hyenaErr := resources.GetImage(sprites.HyenaWalk)
-	if hyenaErr != nil {
-		return hyenaErr
-	}
-	mummy, mummyErr := resources.GetImage(sprites.MummyWalk)
-	if mummyErr != nil {
-		return mummyErr
-	}
-	scorpio, scorpioErr := resources.GetImage(sprites.ScorpioWalk)
-	if scorpioErr != nil {
-		return scorpioErr
-	}
-	snake, snakeErr := resources.GetImage(sprites.SnakeWalk)
-	if snakeErr != nil {
-		return snakeErr
-	}
-	vulture, vultureErr := resources.GetImage(sprites.VultureWalk)
-	if vultureErr != nil {
-		return vultureErr
-	}
 	// Store frames and dimensions in the map
 	o.obstacleImages = map[obstacleType]obstacleSpriteInfo{
 		obstacleTypeDeceased: {
-			frames:          o.loadFrames(ebiten.NewImageFromImage(deceased), 48, 48, 6),
+			frames:          o.loadFrames(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6),
 			width:           obstacleSpriteSize,
 			height:          obstacleSpriteSize,
 			collisionTop:    12,
@@ -138,7 +113,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			collisionHeight: 60,
 		},
 		obstacleTypeHyena: {
-			frames:          o.loadFrames(ebiten.NewImageFromImage(hyena), 48, 48, 6),
+			frames:          o.loadFrames(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6),
 			width:           obstacleSpriteSize,
 			height:          obstacleSpriteSize,
 			collisionTop:    30,
@@ -147,7 +122,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			collisionHeight: 45,
 		},
 		obstacleTypeMummy: {
-			frames:          o.loadFrames(ebiten.NewImageFromImage(mummy), 48, 48, 6),
+			frames:          o.loadFrames(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6),
 			width:           obstacleSpriteSize,
 			height:          obstacleSpriteSize,
 			collisionTop:    12,
@@ -156,7 +131,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			collisionHeight: 60,
 		},
 		obstacleTypeScorpio: {
-			frames:          o.loadFrames(ebiten.NewImageFromImage(scorpio), 48, 48, 4),
+			frames:          o.loadFrames(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4),
 			width:           obstacleSpriteSize,
 			height:          obstacleSpriteSize,
 			collisionTop:    35,
@@ -165,7 +140,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			collisionHeight: 40,
 		},
 		obstacleTypeSnake: {
-			frames:          o.loadFrames(ebiten.NewImageFromImage(snake), 48, 48, 4),
+			frames:          o.loadFrames(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4),
 			width:           obstacleSpriteSize,
 			height:          obstacleSpriteSize,
 			collisionTop:    45,
@@ -174,7 +149,7 @@ func (o *Obstacle) loadObstacleSprites() error {
 			collisionHeight: 40,
 		},
 		obstacleTypeVulture: {
-			frames:          o.loadFrames(ebiten.NewImageFromImage(vulture), 48, 48, 4),
+			frames:          o.loadFrames(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4),
 			width:           obstacleSpriteSize,
 			height:          obstacleSpriteSize,
 			collisionTop:    26,

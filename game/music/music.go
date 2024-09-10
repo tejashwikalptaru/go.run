@@ -1,12 +1,11 @@
 package music
 
 import (
-	"bytes"
 	"fmt"
+	"github.com/tejashwikalptaru/go.run/resource"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
-	"github.com/tejashwikalptaru/go.run/resources/music"
 )
 
 const sampleRate = 44100 // Standard sample rate for audio playback
@@ -23,7 +22,7 @@ func NewMusicManager() (*Manager, error) {
 	audioContext := audio.NewContext(sampleRate)
 
 	// Load and decode background music
-	bgMusicStream, bgMusicStreamErr := mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(music.Background))
+	bgMusicStream, bgMusicStreamErr := mp3.DecodeWithSampleRate(sampleRate, resource.Provider{}.Reader("music/jungle-stage.mp3"))
 	if bgMusicStreamErr != nil {
 		return nil, bgMusicStreamErr
 	}
@@ -38,7 +37,7 @@ func NewMusicManager() (*Manager, error) {
 	}
 
 	// Load and decode jump sound
-	jumpStream, jumpStreamErr := mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(music.Jump))
+	jumpStream, jumpStreamErr := mp3.DecodeWithSampleRate(sampleRate, resource.Provider{}.Reader("music/jump.mp3"))
 	if jumpStreamErr != nil {
 		return nil, jumpStreamErr
 	}
@@ -50,7 +49,7 @@ func NewMusicManager() (*Manager, error) {
 	}
 
 	// Load and decode collision sound
-	collisionStream, collisionStreamErr := mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(music.Collision))
+	collisionStream, collisionStreamErr := mp3.DecodeWithSampleRate(sampleRate, resource.Provider{}.Reader("music/hit.mp3"))
 	if collisionStreamErr != nil {
 		return nil, collisionStreamErr
 	}

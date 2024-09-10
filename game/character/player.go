@@ -1,8 +1,8 @@
 package character
 
 import (
-	"bytes"
 	"fmt"
+	"github.com/tejashwikalptaru/go.run/resource"
 	"image"
 	"image/color"
 
@@ -10,7 +10,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/music"
-	"github.com/tejashwikalptaru/go.run/resources/sprites"
 )
 
 type Player struct {
@@ -41,13 +40,8 @@ type Player struct {
 	debug            bool
 }
 
-func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug bool) (*Player, error) {
+func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug bool) *Player {
 	height := 64.0
-	// Load the player sprite sheet (runner animation)
-	img, _, err := image.Decode(bytes.NewReader(sprites.Runner))
-	if err != nil {
-		return nil, err
-	}
 	return &Player{
 		height:           height,
 		width:            64,
@@ -63,7 +57,7 @@ func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug 
 		frameIndex:       0,
 		frameDelay:       5, // Animation speed
 		frameCount:       0,
-		sprite:           ebiten.NewImageFromImage(img),
+		sprite:           resource.Provider{}.Image("sprites/player.png"),
 		scaleFactor:      2.0,
 		collisionTop:     10,
 		collisionLeft:    20,
@@ -73,7 +67,7 @@ func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug 
 		musicManager:     musicManager,
 		screenWidth:      screenWidth,
 		debug:            debug,
-	}, nil
+	}
 }
 
 func (p *Player) Width() float64 {
@@ -132,6 +126,7 @@ func (p *Player) WalkingToLevelExit() bool {
 	if p.xPosition+p.width >= p.screenWidth+100 {
 		// Player reached the end, stop walking
 		p.walkingToExit = false
+		p.xPosition = -70
 		return false // Return false to indicate the walk is completed
 	}
 
@@ -148,7 +143,9 @@ func (p *Player) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) && !p.isJumping {
 		p.velocityY = -12
 		p.isJumping = true
-		p.musicManager.PlayJumpSound()
+		if p.musicManager != nil {
+			p.musicManager.PlayJumpSound()
+		}
 	}
 
 	// walk the player in

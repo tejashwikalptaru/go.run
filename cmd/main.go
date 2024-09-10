@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"image"
+	"image/png"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,6 +14,9 @@ func main() {
 	// flags
 	debug := flag.Bool("debug", false, "enable debug mode")
 	flag.Parse()
+
+	// register image format
+	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)
 
 	// Create game instance
 	g, err := game.NewGame(*debug)
