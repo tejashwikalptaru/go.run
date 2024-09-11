@@ -8,13 +8,15 @@ import (
 	"github.com/tejashwikalptaru/go.run/game/background"
 	"github.com/tejashwikalptaru/go.run/game/character"
 	"github.com/tejashwikalptaru/go.run/game/obstacle"
+	"github.com/tejashwikalptaru/go.run/game/world/level"
+	"github.com/tejashwikalptaru/go.run/game/world/stage"
 	"github.com/tejashwikalptaru/go.run/resource"
 	"image/color"
 )
 
 type World struct {
 	player       *character.Player
-	stages       []*Stage
+	stages       []stage.Stage
 	currentStage int
 
 	fading             bool
@@ -32,9 +34,12 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 		fadeSpeed:    0.01,
 	}
 
+	splash := stage.NewSplash(screenWidth, screenHeight)
+	world.stages = append(world.stages, splash)
+
 	// jungle stage
-	jungleStage := NewStage("Jungle", screenWidth, screenHeight, textFaceSource, []*Level{
-		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
+	jungleStage := stage.NewStage("Jungle", screenWidth, screenHeight, textFaceSource, []*level.Level{
+		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/jungle/1/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/1/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/1/3.png")),
@@ -47,7 +52,7 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.ObstacleKindGround),
 			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.ObstacleKindRandom),
 		}),
-		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
+		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/jungle/2/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/2/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/2/3.png")),
@@ -55,13 +60,13 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.9, resource.Provider{}.Image("images/jungle/2/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/2/6.png")),
 		}), nil),
-		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
+		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/3/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/3/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/3/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/3/4.png")),
 		}), nil),
-		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
+		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/4/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.2, resource.Provider{}.Image("images/jungle/4/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/4/3.png")),
@@ -73,15 +78,15 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 	world.stages = append(world.stages, jungleStage)
 
 	// desert stage
-	desertStage := NewStage("Desert", screenWidth, screenHeight, textFaceSource, []*Level{
-		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
+	desertStage := stage.NewStage("Desert", screenWidth, screenHeight, textFaceSource, []*level.Level{
+		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/mountain/1/5.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/mountain/1/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/1/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/mountain/1/1.png")),
 		}), nil),
-		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
+		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/mountain/2/5.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/mountain/2/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/2/3.png")),
@@ -94,16 +99,25 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 }
 
 func (world *World) Update() {
+	stg := world.stages[world.currentStage]
+	stg.Begin()
+	stg.Update()
+	if stg.Kind() == stage.KindGame {
+
+	}
+
+	// stage change over check
 	if world.fading {
 		world.updateFade()
 		return
 	}
-	stage := world.stages[world.currentStage]
-	stage.Update()
-	world.player.Update()
-	_, level := stage.CurrentLevel()
 
-	if level.Clear() && !world.fading {
+	// game updates
+	world.player.Update()
+	_, lvl := stg.CurrentLevel()
+
+	// level clear updates
+	if lvl != nil && lvl.Clear() && !world.fading {
 		if !world.player.WalkingToLevelExit() {
 			world.fading = true
 			world.fadeIn = false             // Start fade-out
@@ -114,6 +128,12 @@ func (world *World) Update() {
 
 func (world *World) Draw(screen *ebiten.Image) {
 	world.stages[world.currentStage].Draw(screen)
+
+	if world.stages[world.currentStage].Kind() != stage.KindGame {
+		return
+	}
+
+	// game drawings
 	world.player.Draw(screen)
 
 	if world.fading {

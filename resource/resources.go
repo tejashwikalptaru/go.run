@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"image"
+	_ "image/jpeg"
 	_ "image/png"
 	"io"
 	"io/fs"

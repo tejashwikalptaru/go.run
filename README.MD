@@ -100,7 +100,7 @@ Contributions are welcome! Please feel free to submit a pull request, report iss
 ## 🎉 Acknowledgements
 
 - Thanks to the [Ebitengine](https://ebiten.org/) community for their great work on the engine.
-- cody@zone38.net for the Manaspace font
+- 1001fonts.com for JungleAdventurer font
 - craftpix.net for background images
 - pixabay.com authors for game sounds
 ---

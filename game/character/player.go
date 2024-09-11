@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resource"
 	"image"
 	"image/color"
@@ -12,7 +11,6 @@ import (
 
 type Player struct {
 	sprite           *ebiten.Image
-	musicManager     *music.Manager
 	xPosition        float64
 	frameDelay       int
 	collisionWidth   float64
@@ -38,7 +36,7 @@ type Player struct {
 	debug            bool
 }
 
-func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug bool) *Player {
+func NewPlayer(screenWidth, groundY float64, debug bool) *Player {
 	height := 64.0
 	return &Player{
 		height:           height,
@@ -62,7 +60,6 @@ func NewPlayer(screenWidth, groundY float64, musicManager *music.Manager, debug 
 		collisionWidth:   25,
 		collisionHeight:  55,
 		walkingToExit:    false,
-		musicManager:     musicManager,
 		screenWidth:      screenWidth,
 		debug:            debug,
 	}
@@ -72,9 +69,7 @@ func (p *Player) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) && !p.isJumping {
 		p.velocityY = -12
 		p.isJumping = true
-		if p.musicManager != nil {
-			p.musicManager.PlayJumpSound()
-		}
+		// play jump music here
 	}
 
 	// walk the player in
