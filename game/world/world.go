@@ -1,11 +1,13 @@
 package world
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/background"
 	"github.com/tejashwikalptaru/go.run/game/character"
+	"github.com/tejashwikalptaru/go.run/game/obstacle"
 	"github.com/tejashwikalptaru/go.run/resource"
 	"image/color"
 )
@@ -25,20 +27,27 @@ type World struct {
 func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, player *character.Player) *World {
 	world := World{
 		player:       player,
-		currentStage: 1,
+		currentStage: 0,
 		fadeAlpha:    0.0,
 		fadeSpeed:    0.01,
 	}
 
 	// jungle stage
 	jungleStage := NewStage("Jungle", screenWidth, screenHeight, textFaceSource, []*Level{
-		NewLevel(background.NewParallax([]*background.Layer{
+		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/jungle/1/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/1/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/1/4.png")),
-		}), nil),
-		NewLevel(background.NewParallax([]*background.Layer{
+		}), []obstacle.Obstacle{
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.ObstacleKindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.ObstacleKindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.ObstacleKindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.ObstacleKindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.ObstacleKindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.ObstacleKindRandom),
+		}),
+		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/jungle/2/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/2/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/2/3.png")),
@@ -46,13 +55,13 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.9, resource.Provider{}.Image("images/jungle/2/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/2/6.png")),
 		}), nil),
-		NewLevel(background.NewParallax([]*background.Layer{
+		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/3/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/3/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/3/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/3/4.png")),
 		}), nil),
-		NewLevel(background.NewParallax([]*background.Layer{
+		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/4/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.2, resource.Provider{}.Image("images/jungle/4/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/4/3.png")),
@@ -65,14 +74,14 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 
 	// desert stage
 	desertStage := NewStage("Desert", screenWidth, screenHeight, textFaceSource, []*Level{
-		NewLevel(background.NewParallax([]*background.Layer{
+		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/mountain/1/5.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/mountain/1/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/1/2.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/mountain/1/1.png")),
 		}), nil),
-		NewLevel(background.NewParallax([]*background.Layer{
+		NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/mountain/2/5.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/mountain/2/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/mountain/2/3.png")),
@@ -129,7 +138,14 @@ func (world *World) updateFade() {
 			world.fadeAlpha = 1
 			world.fadeIn = true // Start fade-in
 			if !world.transitionComplete {
-				world.stages[world.currentStage].NextLevel() // Transition to the next level
+				if !world.stages[world.currentStage].NextLevel() {
+					if world.currentStage < len(world.stages)-1 {
+						world.currentStage++
+					} else {
+						// game end, user must have completed the game by now
+						fmt.Println("game won")
+					}
+				}
 			}
 		}
 	}

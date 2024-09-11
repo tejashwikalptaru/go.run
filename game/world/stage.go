@@ -19,7 +19,7 @@ func NewStage(name string, screenWidth, screenHeight float64, textFaceSource *te
 	return &Stage{
 		levels:         levels,
 		name:           name,
-		currentLevel:   1,
+		currentLevel:   0,
 		screenWidth:    screenWidth,
 		screenHeight:   screenHeight,
 		textFaceSource: textFaceSource,
@@ -45,11 +45,12 @@ func (s *Stage) Draw(screen *ebiten.Image) {
 	s.levels[s.currentLevel].Draw(screen)
 }
 
-func (s *Stage) NextLevel() {
+func (s *Stage) NextLevel() bool {
 	if s.currentLevel < len(s.levels)-1 {
-		s.levels[s.currentLevel].Kill()
 		s.currentLevel++
+		return true
 	}
+	return false // indicate no level left in this stage
 }
 
 func (s *Stage) CurrentLevel() (int, *Level) {

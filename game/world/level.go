@@ -3,57 +3,94 @@ package world
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/background"
-	"github.com/tejashwikalptaru/go.run/game/enemy"
+	"github.com/tejashwikalptaru/go.run/game/obstacle"
+	"math/rand"
 	"time"
 )
 
 type Level struct {
-	parallax                    *background.Parallax
-	obstacles                   []*enemy.Obstacle
-	currentScore, requiredScore int
-	ticker                      *time.Ticker
+	screenWidth, screenHeight      float64
+	parallax                       *background.Parallax
+	obstacles                      []*obstacle.Obstacle
+	obstacleSpeed                  float64
+	minObstacleGap, maxObstacleGap float64
+	rng                            *rand.Rand
 }
 
-func NewLevel(parallax *background.Parallax, obstacles []*enemy.Obstacle) *Level {
+func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, obstacles []obstacle.Obstacle) *Level {
 	level := &Level{
-		parallax:      parallax,
-		obstacles:     obstacles,
-		requiredScore: 50,
+		screenWidth:    screenWidth,
+		screenHeight:   screenHeight,
+		parallax:       parallax,
+		obstacleSpeed:  5,
+		minObstacleGap: 250,
+		maxObstacleGap: 400,
+		rng:            rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
+	level.distribute(obstacles)
 	return level
 }
 
 func (l *Level) Update() {
-	if l.ticker == nil {
-		l.ticker = time.NewTicker(time.Second * 20)
-		go func(l *Level) {
-			for range l.ticker.C {
-				l.currentScore = l.requiredScore
-			}
-		}(l)
-	}
 	l.parallax.Update()
-	for _, obstacle := range l.obstacles {
-		obstacle.Update()
+	for i := len(l.obstacles) - 1; i >= 0; i-- {
+		if l.obstacles[i].XPosition() < -l.obstacles[i].Width() {
+			l.obstacles = append(l.obstacles[:i], l.obstacles[i+1:]...)
+			continue
+		}
+		l.obstacles[i].SetXPosition(l.obstacles[i].XPosition() - l.obstacleSpeed)
+		l.obstacles[i].Update()
 	}
 }
 
 func (l *Level) Draw(screen *ebiten.Image) {
 	l.parallax.Draw(screen)
-	for _, obstacle := range l.obstacles {
-		obstacle.Draw(screen)
+	for i := range l.obstacles {
+		l.obstacles[i].Draw(screen)
 	}
 }
 
-func (l *Level) CurrentScore() int {
-	return l.currentScore
+func (l *Level) distribute(obstacles []obstacle.Obstacle) {
+	if obstacles == nil || len(obstacles) == 0 {
+		return
+	}
+
+	const totalObstacles = 50
+	groundY := l.screenHeight - 40
+	lastXPos := l.screenWidth + 300
+
+	rand.Shuffle(len(obstacles), func(i, j int) {
+		obstacles[i], obstacles[j] = obstacles[j], obstacles[i]
+	})
+
+	inAirOffset := groundY - 50
+	groundOffset := groundY
+
+	for i := 0; i < totalObstacles; i++ {
+		obs := obstacles[l.rng.Intn(len(obstacles))]
+
+		if i != 0 {
+			gap := l.rng.Float64()*(l.maxObstacleGap-l.minObstacleGap) + l.minObstacleGap
+			lastXPos += gap
+		}
+		obs.SetXPosition(lastXPos)
+
+		switch obs.Kind() {
+		case obstacle.ObstacleKindGround:
+			obs.SetYPosition(groundOffset - obs.Height())
+		case obstacle.ObstacleKindInAir:
+			obs.SetYPosition(inAirOffset - obs.Height())
+		case obstacle.ObstacleKindRandom:
+			randomOffset := l.rng.Float64()*(groundOffset-inAirOffset) + inAirOffset
+			obs.SetYPosition(randomOffset - obs.Height())
+		default:
+			panic("unknown obstacle")
+		}
+		l.obstacles = append(l.obstacles, &obs)
+	}
 }
 
 // Clear returns true if the level is cleared by player
 func (l *Level) Clear() bool {
-	return l.currentScore >= l.requiredScore
-}
-
-func (l *Level) Kill() {
-	l.ticker.Stop()
+	return len(l.obstacles) == 0 // if no obstacle left on screen
 }

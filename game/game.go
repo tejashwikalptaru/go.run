@@ -5,8 +5,6 @@ import (
 	"github.com/tejashwikalptaru/go.run/game/character"
 	"github.com/tejashwikalptaru/go.run/game/world"
 	"github.com/tejashwikalptaru/go.run/resource"
-	"math/rand"
-	"time"
 )
 
 const (
@@ -16,7 +14,6 @@ const (
 
 // Game struct holds game state variables
 type Game struct {
-	RNG            *rand.Rand
 	GameOver       bool
 	debug          bool
 	textFaceSource *text.GoTextFaceSource
@@ -30,10 +27,8 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 
 // NewGame initializes a new game instance
 func NewGame(debug bool) (*Game, error) {
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	textFaceSource := resource.Provider{}.TextFaceSource("fonts/manaspace/manaspc.ttf")
 	game := &Game{
-		RNG:            rng,
 		GameOver:       false,
 		debug:          debug,
 		textFaceSource: textFaceSource,
