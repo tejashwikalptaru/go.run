@@ -2,7 +2,6 @@ package game
 
 import (
 	"fmt"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,6 +27,5 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}, op)
 		return
 	}
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d", 100))
 	g.world.Draw(screen)
 }

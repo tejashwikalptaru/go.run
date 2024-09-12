@@ -3,7 +3,9 @@ package level
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/tejashwikalptaru/go.run/game/background"
+	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/game/obstacle"
+	"github.com/tejashwikalptaru/go.run/resource"
 	"math/rand"
 	"time"
 )
@@ -15,17 +17,22 @@ type Level struct {
 	obstacleSpeed                  float64
 	minObstacleGap, maxObstacleGap float64
 	rng                            *rand.Rand
+	musicManager                   *music.Manager
+	levelCompletedMusic            *music.Manager
+	started                        bool
 }
 
-func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, obstacles []obstacle.Obstacle) *Level {
+func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, obstacles []obstacle.Obstacle, musicManager *music.Manager) *Level {
 	level := &Level{
-		screenWidth:    screenWidth,
-		screenHeight:   screenHeight,
-		parallax:       parallax,
-		obstacleSpeed:  5,
-		minObstacleGap: 250,
-		maxObstacleGap: 400,
-		rng:            rand.New(rand.NewSource(time.Now().UnixNano())),
+		screenWidth:         screenWidth,
+		screenHeight:        screenHeight,
+		parallax:            parallax,
+		obstacleSpeed:       5,
+		minObstacleGap:      250,
+		maxObstacleGap:      400,
+		rng:                 rand.New(rand.NewSource(time.Now().UnixNano())),
+		musicManager:        musicManager,
+		levelCompletedMusic: music.NewMusic(resource.Provider{}.Reader("music/game-level-complete-143022-universfield.mp3")),
 	}
 	level.distribute(obstacles)
 	return level
@@ -36,6 +43,10 @@ func (l *Level) Update() {
 	for i := len(l.obstacles) - 1; i >= 0; i-- {
 		if l.obstacles[i].XPosition() < -l.obstacles[i].Width() {
 			l.obstacles = append(l.obstacles[:i], l.obstacles[i+1:]...)
+			if len(l.obstacles) == 0 {
+				// all obstacles cleared
+				l.levelCompletedMusic.Play()
+			}
 			continue
 		}
 		l.obstacles[i].SetXPosition(l.obstacles[i].XPosition() - l.obstacleSpeed)
@@ -90,7 +101,19 @@ func (l *Level) distribute(obstacles []obstacle.Obstacle) {
 	}
 }
 
-// Clear returns true if the level is cleared by player
 func (l *Level) Clear() bool {
-	return len(l.obstacles) == 0 // if no obstacle left on screen
+	done := len(l.obstacles) == 0 // if no obstacle left on screen
+	if done {
+		l.musicManager.FadeStop()
+		return done
+	}
+	return false // level running
+}
+
+func (l *Level) Begin() {
+	if l.started {
+		return
+	}
+	l.started = true
+	l.musicManager.Play()
 }

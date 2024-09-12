@@ -43,8 +43,11 @@ func (s *gameStage) NextLevel() bool {
 	return false // indicate no level left in this stage
 }
 
-func (s *gameStage) CurrentLevel() (int, *level.Level) {
-	return s.currentLevel, s.levels[s.currentLevel]
+func (s *gameStage) LevelClear() bool {
+	if len(s.levels) == 0 {
+		return false
+	}
+	return s.levels[s.currentLevel].Clear()
 }
 
 func (s *gameStage) Name() string {
@@ -56,5 +59,5 @@ func (s *gameStage) Kind() Kind {
 }
 
 func (s *gameStage) Begin() {
-	return
+	s.levels[s.currentLevel].Begin()
 }
