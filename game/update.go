@@ -2,7 +2,7 @@ package game
 
 import "github.com/hajimehoshi/ebiten/v2"
 
-// Update handles the game logic, like jumping, obstacle movement, and collision detection
+// Update handles the game logic, like jumping, entity movement, and collision detection
 func (g *Game) Update() error {
 	// If the game is over, wait for the player to press space to restart
 	if g.GameOver {

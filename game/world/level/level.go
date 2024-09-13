@@ -4,8 +4,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/tejashwikalptaru/go.run/game/background"
+	"github.com/tejashwikalptaru/go.run/game/entity/obstacle"
 	"github.com/tejashwikalptaru/go.run/game/music"
-	"github.com/tejashwikalptaru/go.run/game/obstacle"
 	"github.com/tejashwikalptaru/go.run/resource"
 	"math/rand"
 	"time"
@@ -37,7 +37,7 @@ func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, 
 		levelCompletedMusic: music.NewMusic(resource.Provider{}.Reader("music/game-level-complete-143022-universfield.mp3")),
 		space:               resolv.NewSpace(int(screenWidth), int(screenHeight), 8, 8),
 	}
-	level.distribute(obstacles)
+	level.distributeObstacle(obstacles)
 	return level
 }
 
@@ -64,7 +64,7 @@ func (l *Level) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (l *Level) distribute(obstacles []obstacle.Obstacle) {
+func (l *Level) distributeObstacle(obstacles []obstacle.Obstacle) {
 	if obstacles == nil || len(obstacles) == 0 {
 		return
 	}
@@ -98,14 +98,14 @@ func (l *Level) distribute(obstacles []obstacle.Obstacle) {
 			randomOffset := l.rng.Float64()*(groundOffset-inAirOffset) + inAirOffset
 			obs.SetYPosition(randomOffset - obs.Height())
 		default:
-			panic("unknown obstacle")
+			panic("unknown entity")
 		}
 		l.obstacles = append(l.obstacles, &obs)
 	}
 }
 
 func (l *Level) Clear() bool {
-	done := len(l.obstacles) == 0 // if no obstacle left on screen
+	done := len(l.obstacles) == 0 // if no entity left on screen
 	if done {
 		l.musicManager.FadeStop()
 		return done

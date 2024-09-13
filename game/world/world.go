@@ -2,17 +2,18 @@ package world
 
 import (
 	"fmt"
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/background"
 	"github.com/tejashwikalptaru/go.run/game/character"
+	"github.com/tejashwikalptaru/go.run/game/entity/obstacle"
 	"github.com/tejashwikalptaru/go.run/game/music"
-	"github.com/tejashwikalptaru/go.run/game/obstacle"
 	"github.com/tejashwikalptaru/go.run/game/world/level"
 	"github.com/tejashwikalptaru/go.run/game/world/stage"
 	"github.com/tejashwikalptaru/go.run/resource"
-	"image/color"
 )
 
 type World struct {
@@ -46,8 +47,8 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/1/4.png")),
 		}), []obstacle.Obstacle{
-			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.KindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.KindGround),
