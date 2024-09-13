@@ -16,7 +16,7 @@ type Obstacle struct {
 }
 
 func New(img *ebiten.Image, frameWidth, frameHeight, frameCount int, obstacleType entity.Kind) *Obstacle {
-	obstacle := entity.New(img, frameWidth, frameHeight, frameCount, 5, obstacleType, 1.5)
+	obstacle := entity.New(img, frameWidth, frameHeight, frameCount, 5, 0, obstacleType, 1.5)
 
 	return &Obstacle{obstacle}
 }

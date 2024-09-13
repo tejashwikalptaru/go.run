@@ -1,14 +1,15 @@
 package level
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/tejashwikalptaru/go.run/game/background"
 	"github.com/tejashwikalptaru/go.run/game/entity/obstacle"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resource"
-	"math/rand"
-	"time"
 )
 
 type Level struct {
@@ -22,6 +23,9 @@ type Level struct {
 	levelCompletedMusic            *music.Manager
 	started                        bool
 	space                          *resolv.Space
+	generatedObstacles             int
+
+	providedObstacles []obstacle.Obstacle
 }
 
 func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, obstacles []obstacle.Obstacle, musicManager *music.Manager) *Level {
@@ -36,8 +40,9 @@ func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, 
 		musicManager:        musicManager,
 		levelCompletedMusic: music.NewMusic(resource.Provider{}.Reader("music/game-level-complete-143022-universfield.mp3")),
 		space:               resolv.NewSpace(int(screenWidth), int(screenHeight), 8, 8),
+		providedObstacles:   obstacles,
 	}
-	level.distributeObstacle(obstacles)
+	level.distributeObstacle()
 	return level
 }
 
@@ -55,6 +60,9 @@ func (l *Level) Update() {
 		l.obstacles[i].SetXPosition(l.obstacles[i].XPosition() - l.obstacleSpeed)
 		l.obstacles[i].Update()
 	}
+	if len(l.obstacles) > 0 && l.obstacles[len(l.obstacles)-1].XPosition() < l.screenWidth*0.5 {
+		l.distributeObstacle()
+	}
 }
 
 func (l *Level) Draw(screen *ebiten.Image) {
@@ -64,29 +72,39 @@ func (l *Level) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (l *Level) distributeObstacle(obstacles []obstacle.Obstacle) {
-	if obstacles == nil || len(obstacles) == 0 {
+func (l *Level) distributeObstacle() {
+	if l.providedObstacles == nil || len(l.providedObstacles) == 0 {
 		return
 	}
 
 	const totalObstacles = 50
 	groundY := l.screenHeight - 40
-	lastXPos := l.screenWidth + 300
 
-	rand.Shuffle(len(obstacles), func(i, j int) {
-		obstacles[i], obstacles[j] = obstacles[j], obstacles[i]
+	if l.generatedObstacles >= totalObstacles {
+		return
+	}
+
+	rand.Shuffle(len(l.providedObstacles), func(i, j int) {
+		l.providedObstacles[i], l.providedObstacles[j] = l.providedObstacles[j], l.providedObstacles[i]
 	})
 
 	inAirOffset := groundY - 50
 	groundOffset := groundY
 
-	for i := 0; i < totalObstacles; i++ {
-		obs := obstacles[l.rng.Intn(len(obstacles))]
+	var lastXPos float64
+	if len(l.obstacles) > 0 {
+		lastXPos = l.obstacles[len(l.obstacles)-1].XPosition()
+	} else {
+		lastXPos = l.screenWidth + 300
+	}
 
-		if i != 0 {
-			gap := l.rng.Float64()*(l.maxObstacleGap-l.minObstacleGap) + l.minObstacleGap
-			lastXPos += gap
-		}
+	batchSize := min(5, totalObstacles-l.generatedObstacles)
+
+	for i := 0; i < batchSize; i++ {
+		obs := l.providedObstacles[l.rng.Intn(len(l.providedObstacles))]
+
+		gap := l.rng.Float64()*(l.maxObstacleGap-l.minObstacleGap) + l.minObstacleGap
+		lastXPos += gap
 		obs.SetXPosition(lastXPos)
 
 		switch obs.Kind() {
@@ -100,7 +118,9 @@ func (l *Level) distributeObstacle(obstacles []obstacle.Obstacle) {
 		default:
 			panic("unknown entity")
 		}
+
 		l.obstacles = append(l.obstacles, &obs)
+		l.generatedObstacles++
 	}
 }
 

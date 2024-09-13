@@ -1,8 +1,9 @@
 package music
 
 import (
-	"github.com/hajimehoshi/ebiten/v2/audio"
 	"sync"
+	
+	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
 type ctx struct {

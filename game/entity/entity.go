@@ -1,10 +1,11 @@
 package entity
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image"
 	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Kind string
@@ -36,13 +37,14 @@ type BaseEntity struct {
 	yPos        float64
 }
 
-func New(img *ebiten.Image, frameWidth, frameHeight, frameCount, frameDelay int, kind Kind, scaleFactor float64) BaseEntity {
+func New(img *ebiten.Image, frameWidth, frameHeight, frameCount, frameDelay, frameRow int, kind Kind, scaleFactor float64) BaseEntity {
 	width := float64(frameWidth) * scaleFactor
 	height := float64(frameHeight) * scaleFactor
 
+	rowHeight := frameRow * frameHeight
 	frames := make([]*ebiten.Image, frameCount)
 	for i := 0; i < frameCount; i++ {
-		frame, ok := img.SubImage(image.Rect(i*frameWidth, 0, (i+1)*frameWidth, frameHeight)).(*ebiten.Image)
+		frame, ok := img.SubImage(image.Rect(i*frameWidth, rowHeight, (i+1)*frameWidth, frameHeight+rowHeight)).(*ebiten.Image)
 		if !ok {
 			panic("failed to create frame for entity")
 		}

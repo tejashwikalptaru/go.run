@@ -2,9 +2,10 @@ package music
 
 import (
 	"bytes"
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
-	"time"
 )
 
 type Manager struct {

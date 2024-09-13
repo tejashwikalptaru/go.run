@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/tejashwikalptaru/go.run/game/background"
-	"github.com/tejashwikalptaru/go.run/game/character"
 	"github.com/tejashwikalptaru/go.run/game/entity/obstacle"
+	"github.com/tejashwikalptaru/go.run/game/entity/player"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/game/world/level"
 	"github.com/tejashwikalptaru/go.run/game/world/stage"
@@ -17,7 +17,7 @@ import (
 )
 
 type World struct {
-	player       *character.Player
+	player       *player.Player
 	stages       []stage.Stage
 	currentStage int
 
@@ -28,7 +28,7 @@ type World struct {
 	transitionComplete bool
 }
 
-func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, player *character.Player) *World {
+func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, player *player.Player) *World {
 	world := World{
 		player:       player,
 		currentStage: 0,

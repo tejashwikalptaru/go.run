@@ -2,7 +2,7 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/tejashwikalptaru/go.run/game/character"
+	"github.com/tejashwikalptaru/go.run/game/entity/player"
 	"github.com/tejashwikalptaru/go.run/game/world"
 	"github.com/tejashwikalptaru/go.run/resource"
 )
@@ -28,11 +28,12 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 // NewGame initializes a new game instance
 func NewGame(debug bool) (*Game, error) {
 	textFaceSource := resource.Provider{}.TextFaceSource("fonts/JungleAdventurer.ttf")
+	character := player.New(ScreenWidth, ScreenHeight-40)
 	game := &Game{
 		GameOver:       false,
 		debug:          debug,
 		textFaceSource: textFaceSource,
-		world:          world.New(ScreenWidth, ScreenHeight, textFaceSource, character.NewPlayer(ScreenWidth, ScreenHeight-40, false)),
+		world:          world.New(ScreenWidth, ScreenHeight, textFaceSource, character),
 	}
 	return game, nil
 }

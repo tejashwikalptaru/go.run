@@ -1,6 +1,8 @@
 package stage
 
 import (
+	"image/color"
+	
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -8,7 +10,6 @@ import (
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/game/world/level"
 	"github.com/tejashwikalptaru/go.run/resource"
-	"image/color"
 )
 
 type imageData struct {
