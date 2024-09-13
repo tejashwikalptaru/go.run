@@ -8,9 +8,9 @@ import (
 type Kind string
 
 const (
-	ObstacleKindGround Kind = "ground"
-	ObstacleKindInAir  Kind = "in_air"
-	ObstacleKindRandom Kind = "random"
+	KindGround Kind = "ground"
+	KindInAir  Kind = "in_air"
+	KindRandom Kind = "random"
 )
 
 type Obstacle struct {
@@ -28,6 +28,9 @@ type Obstacle struct {
 }
 
 func New(img *ebiten.Image, frameWidth, frameHeight, frameCount int, obstacleType Kind) *Obstacle {
+	width := float64(frameWidth) * 1.5
+	height := float64(frameHeight) * 1.5
+
 	frames := make([]*ebiten.Image, frameCount)
 	for i := 0; i < frameCount; i++ {
 		frame, ok := img.SubImage(image.Rect(i*frameWidth, 0, (i+1)*frameWidth, frameHeight)).(*ebiten.Image)
@@ -36,13 +39,14 @@ func New(img *ebiten.Image, frameWidth, frameHeight, frameCount int, obstacleTyp
 		}
 		frames[i] = frame
 	}
+
 	return &Obstacle{
 		frames:      frames,
 		totalFrames: len(frames),
 		frameCount:  frameCount,
 		frameDelay:  5,
-		width:       float64(frameWidth) * 1.5,
-		height:      float64(frameHeight) * 1.5,
+		width:       width,
+		height:      height,
 		scaleFactor: 1.5,
 		kind:        obstacleType,
 	}

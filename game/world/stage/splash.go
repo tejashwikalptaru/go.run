@@ -43,7 +43,8 @@ type Splash struct {
 	welcomeText     *textData
 	developedByText *textData
 
-	done bool
+	done           bool
+	startKbdListen bool
 }
 
 const fadeSpeed = 0.01
@@ -119,7 +120,7 @@ func (s *Splash) Update() {
 		return
 	}
 
-	if !s.done {
+	if !s.done && s.startKbdListen {
 		s.done = inpututil.IsKeyJustPressed(ebiten.KeySpace)
 		if s.done {
 			s.music.FadeStop()
@@ -150,6 +151,7 @@ func (s *Splash) Update() {
 			if s.music == nil {
 				s.music = music.NewLoopMusic(resource.Provider{}.Reader("music/jungle-story-168459-phantasticbeats.mp3"))
 				s.music.Play()
+				s.startKbdListen = true
 			}
 		}
 

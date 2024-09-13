@@ -32,11 +32,11 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 		player:       player,
 		currentStage: 0,
 		fadeAlpha:    0.0,
-		fadeSpeed:    0.01,
+		fadeSpeed:    0.05,
 	}
 
-	splash := stage.NewSplash(screenWidth, screenHeight)
-	world.stages = append(world.stages, splash)
+	//splash := stage.NewSplash(screenWidth, screenHeight)
+	//world.stages = append(world.stages, splash)
 
 	// jungle stage
 	jungleStage := stage.NewStage("Jungle", screenWidth, screenHeight, textFaceSource, []*level.Level{
@@ -46,12 +46,12 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/1/4.png")),
 		}), []obstacle.Obstacle{
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.ObstacleKindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.ObstacleKindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.ObstacleKindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.ObstacleKindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.ObstacleKindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.ObstacleKindRandom),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.KindGround),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.KindGround),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.KindGround),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.KindGround),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.KindRandom),
 		}, music.NewLoopMusic(resource.Provider{}.Reader("music/jungle-stage.mp3"))),
 		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/jungle/2/1.png")),
@@ -104,6 +104,12 @@ func (world *World) Update() {
 	stg.Begin()
 	stg.Update()
 
+	// stage change over check
+	if world.fading {
+		world.updateFade()
+		return
+	}
+
 	// game updates
 	world.player.Update()
 
@@ -120,11 +126,6 @@ func (world *World) Update() {
 			world.fadeIn = false
 			world.transitionComplete = false
 		}
-	}
-	// stage change over check
-	if world.fading {
-		world.updateFade()
-		return
 	}
 }
 

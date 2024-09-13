@@ -2,6 +2,7 @@ package level
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/solarlune/resolv"
 	"github.com/tejashwikalptaru/go.run/game/background"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/game/obstacle"
@@ -20,6 +21,7 @@ type Level struct {
 	musicManager                   *music.Manager
 	levelCompletedMusic            *music.Manager
 	started                        bool
+	space                          *resolv.Space
 }
 
 func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, obstacles []obstacle.Obstacle, musicManager *music.Manager) *Level {
@@ -33,6 +35,7 @@ func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, 
 		rng:                 rand.New(rand.NewSource(time.Now().UnixNano())),
 		musicManager:        musicManager,
 		levelCompletedMusic: music.NewMusic(resource.Provider{}.Reader("music/game-level-complete-143022-universfield.mp3")),
+		space:               resolv.NewSpace(int(screenWidth), int(screenHeight), 8, 8),
 	}
 	level.distribute(obstacles)
 	return level
@@ -87,11 +90,11 @@ func (l *Level) distribute(obstacles []obstacle.Obstacle) {
 		obs.SetXPosition(lastXPos)
 
 		switch obs.Kind() {
-		case obstacle.ObstacleKindGround:
+		case obstacle.KindGround:
 			obs.SetYPosition(groundOffset - obs.Height())
-		case obstacle.ObstacleKindInAir:
+		case obstacle.KindInAir:
 			obs.SetYPosition(inAirOffset - obs.Height())
-		case obstacle.ObstacleKindRandom:
+		case obstacle.KindRandom:
 			randomOffset := l.rng.Float64()*(groundOffset-inAirOffset) + inAirOffset
 			obs.SetYPosition(randomOffset - obs.Height())
 		default:
