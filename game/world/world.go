@@ -27,7 +27,8 @@ type World struct {
 	fadeIn             bool
 	transitionComplete bool
 
-	gameOver bool
+	gameOver                  bool
+	screenWidth, screenHeight float64
 }
 
 func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, player *player.Player) *World {
@@ -36,10 +37,12 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 		currentStage: 0,
 		fadeAlpha:    0.0,
 		fadeSpeed:    0.05,
+		screenWidth:  screenWidth,
+		screenHeight: screenHeight,
 	}
 
-	//splash := stage.NewSplash(screenWidth, screenHeight)
-	//world.stages = append(world.stages, splash)
+	splash := stage.NewSplash(screenWidth, screenHeight)
+	world.stages = append(world.stages, splash)
 
 	// jungle stage
 	jungleStage := stage.NewStage("Jungle", screenWidth, screenHeight, textFaceSource, []*level.Level{

@@ -80,7 +80,7 @@ func (l *Level) distributeObstacle() {
 		return
 	}
 
-	const totalObstacles = 5
+	const totalObstacles = 50
 	groundY := l.screenHeight - 40
 
 	if l.generatedObstacles >= totalObstacles {

@@ -2,6 +2,7 @@ package player
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/tejashwikalptaru/go.run/game/entity"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resource"
@@ -11,6 +12,10 @@ type Player struct {
 	entity.BaseEntity
 	groundY          float64
 	isJumping        bool
+	canDoubleJump    bool // Flag to enable double jump
+	canSprint        bool // Flag to enable sprinting
+	canMove          bool // Flag to enable/disable left-right movement
+	doubleJumpUsed   bool // Tracks if the double jump has been used
 	velocityY        float64
 	velocityX        float64
 	runningSpeed     float64 // Running speed for horizontal movement
@@ -59,6 +64,9 @@ func New(screenWidth, groundY float64) *Player {
 		life:             3,
 		maxXVelocity:     2.0,
 		runningSpeed:     2.0,
+		canDoubleJump:    true, // Double jump is disabled by default
+		canSprint:        true, // Sprinting is disabled by default
+		canMove:          true, // Left/right movement is disabled by default
 		jumpMusic:        music.NewMusic(resource.Provider{}.Reader("music/jump.mp3")),
 	}
 	player.Reset()
@@ -69,11 +77,20 @@ func (p *Player) Update() {
 	screenLimitLeft := 0.0            // Left edge of the screen
 	screenLimitRight := p.screenWidth // Right edge of the screen
 
-	// Jump logic
-	if ebiten.IsKeyPressed(ebiten.KeySpace) && !p.isJumping && !p.walkingToExit {
-		p.velocityY = -12
-		p.isJumping = true
-		p.jumpMusic.Play()
+	// Jump logic with double jump
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		if !p.isJumping {
+			// First jump
+			p.velocityY = -12
+			p.isJumping = true
+			p.doubleJumpUsed = false // Reset double jump usage
+			p.jumpMusic.Play()
+		} else if p.canDoubleJump && !p.doubleJumpUsed {
+			// Double jump
+			p.velocityY = -12       // Reset Y velocity for double jump
+			p.doubleJumpUsed = true // Mark double jump as used
+			p.jumpMusic.Play()
+		}
 	}
 
 	// Walk the player in (when not jumping or exiting the level)
@@ -81,14 +98,19 @@ func (p *Player) Update() {
 		p.SetXPosition(p.XPosition() + 1)
 	}
 
-	// Handle running left or right (whether jumping or on the ground, but not when walking to exit)
-	if !p.walkingToExit {
+	// Handle running left or right only if allowed (and not walking to exit)
+	if p.canMove && !p.walkingToExit {
 		if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) && p.XPosition() > screenLimitLeft {
 			p.velocityX = -p.runningSpeed // Move left
 		} else if ebiten.IsKeyPressed(ebiten.KeyArrowRight) && p.XPosition() < screenLimitRight-p.Width() {
 			p.velocityX = p.runningSpeed // Move right
 		} else {
 			p.velocityX = 0 // Stop running if no keys pressed
+		}
+
+		// Sprinting logic
+		if p.canSprint && ebiten.IsKeyPressed(ebiten.KeyShift) {
+			p.velocityX *= 2 // Double the running speed when sprinting
 		}
 	}
 
@@ -101,6 +123,7 @@ func (p *Player) Update() {
 		if p.YPosition() >= p.groundY-p.Height() {
 			p.SetYPosition(p.groundY - p.Height())
 			p.isJumping = false
+			p.doubleJumpUsed = false // Reset double jump on landing
 			p.velocityY = 0
 		}
 	}
@@ -137,6 +160,7 @@ func (p *Player) Reset() {
 	p.SetXPosition(-70)
 	p.SetYPosition(p.groundY - p.Height())
 	p.isJumping = false
+	p.doubleJumpUsed = false // Reset double jump
 	p.velocityY = 0
 }
 
