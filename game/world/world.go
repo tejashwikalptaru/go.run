@@ -26,6 +26,8 @@ type World struct {
 	fadeSpeed          float64
 	fadeIn             bool
 	transitionComplete bool
+
+	gameOver bool
 }
 
 func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSource, player *player.Player) *World {
@@ -47,11 +49,11 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/1/4.png")),
 		}), []obstacle.Obstacle{
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround),
+			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.KindGround),
-			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.KindGround),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.KindGround),
 			//*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.KindRandom),
 		}, music.NewLoopMusic(resource.Provider{}.Reader("music/jungle-stage.mp3"))),
 		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
@@ -101,6 +103,10 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 }
 
 func (world *World) Update() {
+	if world.gameOver {
+		return
+	}
+
 	stg := world.stages[world.currentStage]
 	stg.Begin()
 	stg.Update()
@@ -113,6 +119,7 @@ func (world *World) Update() {
 
 	// game updates
 	world.player.Update()
+	world.gameOver = stg.CheckCollision(world.player)
 
 	// level clear updates
 	if stg.LevelClear() && !world.fading {

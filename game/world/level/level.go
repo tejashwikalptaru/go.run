@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/resolv"
 	"github.com/tejashwikalptaru/go.run/game/background"
+	"github.com/tejashwikalptaru/go.run/game/entity"
 	"github.com/tejashwikalptaru/go.run/game/entity/obstacle"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resource"
@@ -78,7 +79,7 @@ func (l *Level) distributeObstacle() {
 	}
 
 	const totalObstacles = 50
-	groundY := l.screenHeight - 40
+	groundY := l.screenHeight - 60
 
 	if l.generatedObstacles >= totalObstacles {
 		return
@@ -139,4 +140,13 @@ func (l *Level) Begin() {
 	}
 	l.started = true
 	l.musicManager.Play()
+}
+
+func (l *Level) CheckCollision(player *entity.BaseEntity) bool {
+	for i := range l.obstacles {
+		if l.obstacles[i].CollidesWith(player) {
+			return true
+		}
+	}
+	return false
 }

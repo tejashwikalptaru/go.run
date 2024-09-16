@@ -1,8 +1,9 @@
 package stage
 
 import (
+	"github.com/tejashwikalptaru/go.run/game/entity/player"
 	"image/color"
-	
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -242,4 +243,8 @@ func (s *Splash) Begin() {
 
 func (s *Splash) LevelClear() bool {
 	return s.done
+}
+
+func (s *Splash) CheckCollision(player *player.Player) bool {
+	return false
 }
