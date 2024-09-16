@@ -2,11 +2,9 @@ package entity
 
 import (
 	"image"
-	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Kind string
@@ -24,6 +22,7 @@ type Entity interface {
 	ScaleFactor() float64
 	CollidesWith(other *BaseEntity) bool
 	BoundingBox() image.Rectangle
+	Flip()
 }
 
 type BaseEntity struct {
@@ -38,11 +37,15 @@ type BaseEntity struct {
 	kind        Kind
 	xPos        float64
 	yPos        float64
+	hFlipped    bool
+	vFlipped    bool
+
+	collidedInPast bool
 }
 
 func New(img *ebiten.Image, frameWidth, frameHeight, frameCount, frameDelay, frameRow int, kind Kind, scaleFactor float64) BaseEntity {
-	width := float64(frameWidth)
-	height := float64(frameHeight)
+	width := float64(frameWidth) * scaleFactor
+	height := float64(frameHeight) * scaleFactor
 
 	rowHeight := frameRow * frameHeight
 	frames := make([]Frame, frameCount)
@@ -81,18 +84,25 @@ func (e *BaseEntity) Update() {
 
 func (e *BaseEntity) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(e.scaleFactor, e.scaleFactor)
+	scaleX, scaleY := e.scaleFactor, e.scaleFactor
+	if e.hFlipped {
+		scaleX *= -1
+	}
+	if e.vFlipped {
+		scaleY *= -1
+	}
+	op.GeoM.Scale(scaleX, scaleY)
 	op.GeoM.Translate(e.xPos, e.yPos)
 	screen.DrawImage(e.frames[e.frameIndex].Image, op)
 
-	if e.frames[e.frameIndex].dataComputed {
-		rect := e.expandRect(-10)
-		x := float32(rect.Min.X)
-		y := float32(rect.Min.Y)
-		width := float32(rect.Max.X - rect.Min.X)
-		height := float32(rect.Max.Y - rect.Min.Y)
-		vector.DrawFilledRect(screen, x, y, width, height, color.RGBA{R: 255}, false)
-	}
+	//if e.frames[e.frameIndex].dataComputed {
+	//	rect := e.expandRect(-10)
+	//	x := float32(rect.Min.X)
+	//	y := float32(rect.Min.Y)
+	//	width := float32(rect.Max.X - rect.Min.X)
+	//	height := float32(rect.Max.Y - rect.Min.Y)
+	//	vector.DrawFilledRect(screen, x, y, width, height, color.RGBA{R: 255}, false)
+	//}
 }
 
 func (e *BaseEntity) SetXPosition(xPosition float64) {
@@ -132,13 +142,21 @@ func (e *BaseEntity) BoundingBox() image.Rectangle {
 
 	bbox := frame.TightBoundingBox
 
+	scaleX, scaleY := e.scaleFactor, e.scaleFactor
+	if e.hFlipped {
+		scaleX *= -1
+	}
+	if e.vFlipped {
+		scaleY *= -1
+	}
+
 	// Apply scaling
-	scaledWidth := float64(bbox.Dx()) * e.scaleFactor
-	scaledHeight := float64(bbox.Dy()) * e.scaleFactor
+	scaledWidth := float64(bbox.Dx()) * scaleX
+	scaledHeight := float64(bbox.Dy()) * scaleY
 
 	// Calculate the top-left corner position, considering any offset from the tight bounding box
-	x := e.xPos + float64(bbox.Min.X)*e.scaleFactor
-	y := e.yPos + float64(bbox.Min.Y)*e.scaleFactor
+	x := e.xPos + float64(bbox.Min.X)*scaleX
+	y := e.yPos + float64(bbox.Min.Y)*scaleY
 
 	return image.Rect(
 		int(x),
@@ -149,11 +167,15 @@ func (e *BaseEntity) BoundingBox() image.Rectangle {
 }
 
 func (e *BaseEntity) CollidesWith(other *BaseEntity) bool {
-	if !e.frames[e.frameIndex].dataComputed || !other.frames[other.frameIndex].dataComputed {
+	if !e.frames[e.frameIndex].dataComputed || !other.frames[other.frameIndex].dataComputed || e.collidedInPast {
 		return false
 	}
 	marginErr := -10.0
-	return e.expandRect(marginErr).Overlaps(other.expandRect(marginErr))
+	if e.expandRect(marginErr).Overlaps(other.expandRect(marginErr)) {
+		e.collidedInPast = true
+		return true
+	}
+	return false
 }
 
 func (e *BaseEntity) expandRect(marginPercent float64) image.Rectangle {
@@ -174,4 +196,12 @@ func (e *BaseEntity) expandRect(marginPercent float64) image.Rectangle {
 	)
 
 	return expandedRect
+}
+
+func (e *BaseEntity) HFlip() {
+	e.hFlipped = !e.hFlipped
+}
+
+func (e *BaseEntity) VFlip() {
+	e.vFlipped = !e.vFlipped
 }

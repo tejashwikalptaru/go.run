@@ -6,17 +6,26 @@ import (
 )
 
 const (
-	KindGround entity.Kind = "ground"
-	KindInAir  entity.Kind = "in_air"
-	KindRandom entity.Kind = "random"
+	KindGround entity.Kind = "obstacle_ground"
+	KindInAir  entity.Kind = "obstacle_in_air"
+	KindRandom entity.Kind = "obstacle_random"
 )
 
 type Obstacle struct {
 	entity.BaseEntity
 }
 
-func New(img *ebiten.Image, frameWidth, frameHeight, frameCount int, obstacleType entity.Kind) *Obstacle {
-	obstacle := entity.New(img, frameWidth, frameHeight, frameCount, 5, 0, obstacleType, 1.5)
+func Is(kind entity.Kind) bool {
+	return kind == KindGround || kind == KindInAir || kind == KindRandom
+}
+
+func New(img *ebiten.Image, frameWidth, frameHeight, frameCount int, obstacleType entity.Kind, scaleFactor float64) *Obstacle {
+	obstacle := entity.New(img, frameWidth, frameHeight, frameCount, 5, 0, obstacleType, scaleFactor)
 
 	return &Obstacle{obstacle}
+}
+
+func (o *Obstacle) HFlip() *Obstacle {
+	o.BaseEntity.HFlip()
+	return o
 }

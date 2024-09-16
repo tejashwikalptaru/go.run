@@ -245,6 +245,10 @@ func (s *Splash) LevelClear() bool {
 	return s.done
 }
 
-func (s *Splash) CheckCollision(entity *entity.BaseEntity) bool {
-	return false
+func (s *Splash) CheckCollision(entity *entity.BaseEntity) (bool, entity.Kind) {
+	return false, ""
+}
+
+func (s *Splash) Die() {
+
 }

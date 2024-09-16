@@ -21,7 +21,7 @@ func NewStage(name string, screenWidth, screenHeight float64, textFaceSource *te
 	return &gameStage{
 		levels:         levels,
 		name:           name,
-		currentLevel:   0,
+		currentLevel:   1,
 		screenWidth:    screenWidth,
 		screenHeight:   screenHeight,
 		textFaceSource: textFaceSource,
@@ -63,6 +63,10 @@ func (s *gameStage) Begin() {
 	s.levels[s.currentLevel].Begin()
 }
 
-func (s *gameStage) CheckCollision(entity *entity.BaseEntity) bool {
+func (s *gameStage) CheckCollision(entity *entity.BaseEntity) (bool, entity.Kind) {
 	return s.levels[s.currentLevel].CheckCollision(entity)
+}
+
+func (s *gameStage) Die() {
+	s.levels[s.currentLevel].Die()
 }

@@ -20,5 +20,6 @@ type Stage interface {
 	Name() string
 	Kind() Kind
 	Begin()
-	CheckCollision(entity *entity.BaseEntity) bool
+	CheckCollision(entity *entity.BaseEntity) (bool, entity.Kind)
+	Die()
 }

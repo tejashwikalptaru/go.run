@@ -49,12 +49,12 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.5, resource.Provider{}.Image("images/jungle/1/3.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/1/4.png")),
 		}), []obstacle.Obstacle{
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.KindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.KindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.KindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.KindGround),
-			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.KindRandom),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Deceased_walk.png"), 48, 48, 6, obstacle.KindGround, 1.5),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Hyena_walk.png"), 48, 48, 6, obstacle.KindGround, 1.5),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Mummy_walk.png"), 48, 48, 6, obstacle.KindGround, 1.5),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Scorpio_walk.png"), 48, 48, 4, obstacle.KindGround, 1.5),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Snake_walk.png"), 48, 48, 4, obstacle.KindGround, 1.5),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Vulture_walk.png"), 48, 48, 4, obstacle.KindRandom, 1.5),
 		}, music.NewLoopMusic(resource.Provider{}.Reader("music/jungle-stage.mp3"))),
 		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 0.1, resource.Provider{}.Image("images/jungle/2/1.png")),
@@ -63,7 +63,17 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 			background.NewLayer(screenWidth, screenHeight, 0.7, resource.Provider{}.Image("images/jungle/2/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.9, resource.Provider{}.Image("images/jungle/2/4.png")),
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/2/6.png")),
-		}), nil, music.NewLoopMusic(resource.Provider{}.Reader("music/world-adventure-jungle-mystery-226335-Sonican.mp3"))),
+		}), []obstacle.Obstacle{
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Yurei-Run.png"), 128, 128, 5, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Onre-Run.png"), 128, 128, 7, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Gotoku-Jump.png"), 128, 128, 8, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Run-warrior.png"), 96, 96, 6, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/Jump-shaman.png"), 96, 96, 6, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/berserk_run.png"), 96, 96, 6, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/berserk.png"), 96, 96, 5, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/ww-run.png"), 128, 128, 9, obstacle.KindGround, 0.9).HFlip(),
+			*obstacle.New(resource.Provider{}.Image("sprites/enemy/ww-jump.png"), 128, 128, 11, obstacle.KindGround, 0.9).HFlip(),
+		}, music.NewLoopMusic(resource.Provider{}.Reader("music/world-adventure-jungle-mystery-226335-Sonican.mp3"))),
 		level.NewLevel(screenWidth, screenHeight, background.NewParallax([]*background.Layer{
 			background.NewLayer(screenWidth, screenHeight, 1.0, resource.Provider{}.Image("images/jungle/3/1.png")),
 			background.NewLayer(screenWidth, screenHeight, 0.3, resource.Provider{}.Image("images/jungle/3/2.png")),
@@ -103,10 +113,6 @@ func New(screenWidth, screenHeight float64, textFaceSource *text.GoTextFaceSourc
 }
 
 func (world *World) Update() {
-	if world.gameOver {
-		return
-	}
-
 	stg := world.stages[world.currentStage]
 	stg.Begin()
 	stg.Update()
@@ -119,7 +125,10 @@ func (world *World) Update() {
 
 	// game updates
 	world.player.Update()
-	world.gameOver = stg.CheckCollision(&world.player.BaseEntity)
+	_, kind := stg.CheckCollision(&world.player.BaseEntity)
+	if obstacle.Is(kind) {
+		//world.gameOver = world.player.Hurt()
+	}
 
 	// level clear updates
 	if stg.LevelClear() && !world.fading {
@@ -179,4 +188,12 @@ func (world *World) updateFade() {
 			}
 		}
 	}
+}
+
+func (world *World) GameOver() bool {
+	return world.gameOver
+}
+
+func (world *World) Die() {
+	world.stages[world.currentStage].Die()
 }

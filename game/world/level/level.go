@@ -22,6 +22,7 @@ type Level struct {
 	rng                            *rand.Rand
 	musicManager                   *music.Manager
 	levelCompletedMusic            *music.Manager
+	collisionMusic                 *music.Manager
 	started                        bool
 	space                          *resolv.Space
 	generatedObstacles             int
@@ -40,6 +41,7 @@ func NewLevel(screenWidth, screenHeight float64, parallax *background.Parallax, 
 		rng:                 rand.New(rand.NewSource(time.Now().UnixNano())),
 		musicManager:        musicManager,
 		levelCompletedMusic: music.NewMusic(resource.Provider{}.Reader("music/game-level-complete-143022-universfield.mp3")),
+		collisionMusic:      music.NewMusic(resource.Provider{}.Reader("music/hit.mp3")),
 		space:               resolv.NewSpace(int(screenWidth), int(screenHeight), 8, 8),
 		providedObstacles:   obstacles,
 	}
@@ -78,8 +80,8 @@ func (l *Level) distributeObstacle() {
 		return
 	}
 
-	const totalObstacles = 50
-	groundY := l.screenHeight - 60
+	const totalObstacles = 5
+	groundY := l.screenHeight - 40
 
 	if l.generatedObstacles >= totalObstacles {
 		return
@@ -142,11 +144,19 @@ func (l *Level) Begin() {
 	l.musicManager.Play()
 }
 
-func (l *Level) CheckCollision(entity *entity.BaseEntity) bool {
+func (l *Level) CheckCollision(entity *entity.BaseEntity) (bool, entity.Kind) {
 	for i := range l.obstacles {
 		if l.obstacles[i].CollidesWith(entity) {
-			return true
+			l.collisionMusic.Play()
+			return true, l.obstacles[i].Kind()
 		}
 	}
-	return false
+	return false, ""
+}
+
+func (l *Level) Die() {
+	l.obstacles = nil
+	l.musicManager.Stop()
+	l.collisionMusic.Stop()
+	l.levelCompletedMusic.Stop()
 }

@@ -14,10 +14,11 @@ const (
 
 // Game struct holds game state variables
 type Game struct {
-	GameOver       bool
 	debug          bool
+	died           bool
 	textFaceSource *text.GoTextFaceSource
 	world          *world.World
+	character      *player.Player
 }
 
 // Layout defines the screen dimensions
@@ -28,11 +29,11 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 // NewGame initializes a new game instance
 func NewGame(debug bool) (*Game, error) {
 	textFaceSource := resource.Provider{}.TextFaceSource("fonts/JungleAdventurer.ttf")
-	character := player.New(ScreenWidth, ScreenHeight-65)
+	character := player.New(ScreenWidth, ScreenHeight-40)
 	game := &Game{
-		GameOver:       false,
 		debug:          debug,
 		textFaceSource: textFaceSource,
+		character:      character,
 		world:          world.New(ScreenWidth, ScreenHeight, textFaceSource, character),
 	}
 	return game, nil
@@ -40,6 +41,7 @@ func NewGame(debug bool) (*Game, error) {
 
 // ResetGame resets the game state
 func (g *Game) ResetGame() error {
-	g.GameOver = false
+	g.character = player.New(ScreenWidth, ScreenHeight-40)
+	g.world = world.New(ScreenWidth, ScreenHeight, g.textFaceSource, g.character)
 	return nil
 }

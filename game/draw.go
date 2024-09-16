@@ -10,8 +10,7 @@ import (
 
 // Draw renders the game screen
 func (g *Game) Draw(screen *ebiten.Image) {
-	// If game over, display message
-	if g.GameOver {
+	if g.world.GameOver() {
 		msg := fmt.Sprintf("GAME OVER\n\nScore: 100\nPress Space to Restart")
 		op := &text.DrawOptions{
 			LayoutOptions: text.LayoutOptions{
