@@ -119,7 +119,7 @@ func (world *World) Update() {
 
 	// game updates
 	world.player.Update()
-	world.gameOver = stg.CheckCollision(world.player)
+	world.gameOver = stg.CheckCollision(&world.player.BaseEntity)
 
 	// level clear updates
 	if stg.LevelClear() && !world.fading {

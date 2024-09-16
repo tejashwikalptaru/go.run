@@ -2,7 +2,7 @@ package stage
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/tejashwikalptaru/go.run/game/entity/player"
+	"github.com/tejashwikalptaru/go.run/game/entity"
 )
 
 type Kind string
@@ -20,5 +20,5 @@ type Stage interface {
 	Name() string
 	Kind() Kind
 	Begin()
-	CheckCollision(player *player.Player) bool
+	CheckCollision(entity *entity.BaseEntity) bool
 }

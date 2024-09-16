@@ -1,11 +1,12 @@
 package entity
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image"
 	"image/color"
 	"math"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Kind string
@@ -23,17 +24,6 @@ type Entity interface {
 	ScaleFactor() float64
 	CollidesWith(other *BaseEntity) bool
 	BoundingBox() image.Rectangle
-}
-
-type Vec2d struct {
-	X float64
-	Y float64
-}
-
-type Frame struct {
-	Image            *ebiten.Image
-	TightBoundingBox *image.Rectangle
-	DataComputed     bool
 }
 
 type BaseEntity struct {
@@ -78,9 +68,9 @@ func New(img *ebiten.Image, frameWidth, frameHeight, frameCount, frameDelay, fra
 
 func (e *BaseEntity) Update() {
 	frame := &e.frames[e.frameIndex]
-	if !frame.DataComputed {
+	if !frame.dataComputed {
 		frame.computeTightBoundingBox()
-		frame.DataComputed = true
+		frame.dataComputed = true
 	}
 	e.frameCount++
 	if e.frameCount >= e.frameDelay {
@@ -95,7 +85,7 @@ func (e *BaseEntity) Draw(screen *ebiten.Image) {
 	op.GeoM.Translate(e.xPos, e.yPos)
 	screen.DrawImage(e.frames[e.frameIndex].Image, op)
 
-	if e.frames[e.frameIndex].DataComputed {
+	if e.frames[e.frameIndex].dataComputed {
 		rect := e.expandRect(-10)
 		x := float32(rect.Min.X)
 		y := float32(rect.Min.Y)
@@ -159,52 +149,11 @@ func (e *BaseEntity) BoundingBox() image.Rectangle {
 }
 
 func (e *BaseEntity) CollidesWith(other *BaseEntity) bool {
-	if !e.frames[e.frameIndex].DataComputed || !other.frames[other.frameIndex].DataComputed {
+	if !e.frames[e.frameIndex].dataComputed || !other.frames[other.frameIndex].dataComputed {
 		return false
 	}
 	marginErr := -10.0
 	return e.expandRect(marginErr).Overlaps(other.expandRect(marginErr))
-}
-
-func (f *Frame) computeTightBoundingBox() {
-	bounds := f.Image.Bounds()
-	minX, minY := bounds.Max.X, bounds.Max.Y
-	maxX, maxY := bounds.Min.X, bounds.Min.Y
-
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			_, _, _, a := f.Image.At(x, y).RGBA()
-			if a > 0 {
-				if x < minX {
-					minX = x
-				}
-				if x > maxX {
-					maxX = x
-				}
-				if y < minY {
-					minY = y
-				}
-				if y > maxY {
-					maxY = y
-				}
-			}
-		}
-	}
-
-	// If no non-transparent pixels are found, return an empty rectangle
-	if minX > maxX || minY > maxY {
-		rect := image.Rect(0, 0, 0, 0)
-		f.TightBoundingBox = &rect
-	}
-
-	// Adjust coordinates to be relative to the sub-image's bounds
-	adjustedMinX := minX - bounds.Min.X
-	adjustedMinY := minY - bounds.Min.Y
-	adjustedMaxX := maxX - bounds.Min.X
-	adjustedMaxY := maxY - bounds.Min.Y
-
-	rect := image.Rect(adjustedMinX, adjustedMinY, adjustedMaxX+1, adjustedMaxY+1)
-	f.TightBoundingBox = &rect
 }
 
 func (e *BaseEntity) expandRect(marginPercent float64) image.Rectangle {

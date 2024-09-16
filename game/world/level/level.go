@@ -142,9 +142,9 @@ func (l *Level) Begin() {
 	l.musicManager.Play()
 }
 
-func (l *Level) CheckCollision(player *entity.BaseEntity) bool {
+func (l *Level) CheckCollision(entity *entity.BaseEntity) bool {
 	for i := range l.obstacles {
-		if l.obstacles[i].CollidesWith(player) {
+		if l.obstacles[i].CollidesWith(entity) {
 			return true
 		}
 	}

@@ -3,7 +3,7 @@ package stage
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/tejashwikalptaru/go.run/game/entity/player"
+	"github.com/tejashwikalptaru/go.run/game/entity"
 	"github.com/tejashwikalptaru/go.run/game/world/level"
 )
 
@@ -63,6 +63,6 @@ func (s *gameStage) Begin() {
 	s.levels[s.currentLevel].Begin()
 }
 
-func (s *gameStage) CheckCollision(player *player.Player) bool {
-	return s.levels[s.currentLevel].CheckCollision(&player.BaseEntity)
+func (s *gameStage) CheckCollision(entity *entity.BaseEntity) bool {
+	return s.levels[s.currentLevel].CheckCollision(entity)
 }

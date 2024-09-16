@@ -1,13 +1,13 @@
 package stage
 
 import (
-	"github.com/tejashwikalptaru/go.run/game/entity/player"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/tejashwikalptaru/go.run/game/entity"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/game/world/level"
 	"github.com/tejashwikalptaru/go.run/resource"
@@ -245,6 +245,6 @@ func (s *Splash) LevelClear() bool {
 	return s.done
 }
 
-func (s *Splash) CheckCollision(player *player.Player) bool {
+func (s *Splash) CheckCollision(entity *entity.BaseEntity) bool {
 	return false
 }
