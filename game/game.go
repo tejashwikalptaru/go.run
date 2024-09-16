@@ -28,7 +28,7 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 // NewGame initializes a new game instance
 func NewGame(debug bool) (*Game, error) {
 	textFaceSource := resource.Provider{}.TextFaceSource("fonts/JungleAdventurer.ttf")
-	character := player.New(ScreenWidth, ScreenHeight-60)
+	character := player.New(ScreenWidth, ScreenHeight-65)
 	game := &Game{
 		GameOver:       false,
 		debug:          debug,

@@ -18,8 +18,8 @@ type Player struct {
 }
 
 func New(screenWidth, groundY float64) *Player {
-	img := resource.Provider{}.Image("sprites/player-1.png")
-	playerEntity := entity.New(img, 64, 64, 8, 5, 0, "player", .9)
+	img := resource.Provider{}.Image("sprites/player.png")
+	playerEntity := entity.New(img, 32, 32, 8, 5, 1, "player", 2)
 	player := Player{BaseEntity: playerEntity, groundY: groundY, screenWidth: screenWidth, xPositionDesired: 40, gravity: 0.6}
 	player.Reset()
 	return &player
