@@ -7,6 +7,9 @@ import (
 
 // Update handles the game logic, like jumping, entity movement, and collision detection
 func (g *Game) Update() error {
+	inputState := g.input.Update()
+	g.character.Input(inputState)
+
 	if g.world.GameOver() {
 		if !g.died {
 			g.world.Die()

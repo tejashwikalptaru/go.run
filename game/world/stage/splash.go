@@ -1,6 +1,7 @@
 package stage
 
 import (
+	"github.com/tejashwikalptaru/go.run/utils"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -60,6 +61,9 @@ func NewSplash(screenWidth, screenHeight float64) Stage {
 
 	fontFace := resource.Provider{}.TextFaceSource("fonts/JungleAdventurer.ttf")
 	welcomeText := "Press space to start"
+	if utils.IsMobile() {
+		welcomeText = "Touch to start"
+	}
 	textSize := 36.0
 	welcomeTextWidth, welcomeTextHeight := text.Measure(welcomeText, &text.GoTextFace{
 		Source: fontFace,
@@ -123,7 +127,7 @@ func (s *Splash) Update() {
 	}
 
 	if !s.done && s.startKbdListen {
-		s.done = inpututil.IsKeyJustPressed(ebiten.KeySpace)
+		s.done = inpututil.IsKeyJustPressed(ebiten.KeySpace) || len(inpututil.AppendJustPressedTouchIDs(nil)) > 0
 		if s.done {
 			s.music.FadeStop()
 			return

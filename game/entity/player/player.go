@@ -2,10 +2,10 @@ package player
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/tejashwikalptaru/go.run/game/entity"
 	"github.com/tejashwikalptaru/go.run/game/music"
 	"github.com/tejashwikalptaru/go.run/resource"
+	"github.com/tejashwikalptaru/go.run/utils"
 )
 
 type Player struct {
@@ -25,7 +25,8 @@ type Player struct {
 	xPositionDesired float64
 	gravity          float64
 
-	jumpMusic *music.Manager
+	jumpMusic  *music.Manager
+	inputState utils.InputState
 
 	heart entity.BaseEntity
 	life  int
@@ -78,7 +79,7 @@ func (p *Player) Update() {
 	screenLimitRight := p.screenWidth // Right edge of the screen
 
 	// Jump logic with double jump
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+	if p.inputState.Jump { // inpututil.IsKeyJustPressed(ebiten.KeySpace)
 		if !p.isJumping {
 			// First jump
 			p.velocityY = -12
@@ -100,16 +101,16 @@ func (p *Player) Update() {
 
 	// Handle running left or right only if allowed (and not walking to exit)
 	if p.canMove && !p.walkingToExit {
-		if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) && p.XPosition() > screenLimitLeft {
+		if p.inputState.MoveLeft && p.XPosition() > screenLimitLeft { // ebiten.IsKeyPressed(ebiten.KeyArrowLeft)
 			p.velocityX = -p.runningSpeed // Move left
-		} else if ebiten.IsKeyPressed(ebiten.KeyArrowRight) && p.XPosition() < screenLimitRight-p.Width() {
+		} else if p.inputState.MoveRight && p.XPosition() < screenLimitRight-p.Width() { // ebiten.IsKeyPressed(ebiten.KeyArrowRight)
 			p.velocityX = p.runningSpeed // Move right
 		} else {
 			p.velocityX = 0 // Stop running if no keys pressed
 		}
 
 		// Sprinting logic
-		if p.canSprint && ebiten.IsKeyPressed(ebiten.KeyShift) {
+		if p.canSprint && p.inputState.Sprint { // ebiten.IsKeyPressed(ebiten.KeyShift)
 			p.velocityX *= 2 // Double the running speed when sprinting
 		}
 	}
@@ -191,4 +192,8 @@ func (p *Player) Hurt() (died bool) {
 
 func (p *Player) Die() {
 	p.jumpMusic.Stop()
+}
+
+func (p *Player) Input(state utils.InputState) {
+	p.inputState = state
 }
